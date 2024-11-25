@@ -1,12 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import PersonalInfo from '@/components/sections/personal-info';
 import Education from '@/components/sections/education';
 import WorkExperience from '@/components/sections/work-experience';
 import Projects from '@/components/sections/projects';
 import Skills from '@/components/sections/skills';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 interface PersonalInfoType {
   name: string;
@@ -63,6 +69,8 @@ const Home: React.FC = () => {
   const [resumeUrl, setResumeUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [dividerPosition, setDividerPosition] = useState(50);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number | null, section: string, field: string) => {
     const value = e.target.value;
@@ -136,26 +144,78 @@ const Home: React.FC = () => {
     }
   };
 
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const startX = e.clientX;
+    const startWidth = containerRef.current?.offsetWidth || 0;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newDividerPosition = ((e.clientX - startX) / startWidth) * 100 + dividerPosition;
+      setDividerPosition(Math.max(10, Math.min(90, newDividerPosition)));
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
   return (
-    <div className="container mx-auto p-4">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <PersonalInfo personalInfo={personalInfo} handleChange={handleChange} />
-        <Education education={education} handleChange={handleChange} removeField={removeField} addField={addField} />
-        <WorkExperience workExperience={workExperience} handleChange={handleChange} handleDetailChange={handleDetailChange} removeField={removeField} addField={addField} addDetail={addDetail} removeDetail={removeDetail} />
-        <Projects projects={projects} handleChange={handleChange} handleDetailChange={handleDetailChange} removeField={removeField} addField={addField} addDetail={addDetail} removeDetail={removeDetail} />
-        <Skills skills={skills} handleChange={handleChange} />
-        <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Generate Resume</button>
-      </form>
-
-      {loading && <p className="text-gray-500">Loading...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-
-      {resumeUrl && (
-        <div className="mt-4">
-          <h2 className="text-xl font-bold">Generated Resume</h2>
-          <iframe src={resumeUrl} width="100%" height="600px" title="Generated Resume"></iframe>
-        </div>
-      )}
+    <div className="container mx-auto p-4 flex" ref={containerRef}>
+      <div className="pr-4" style={{ width: `${dividerPosition}%` }}>
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <Accordion type="single" collapsible>
+            <AccordionItem value="personal-info">
+              <AccordionTrigger>Personal Information</AccordionTrigger>
+              <AccordionContent>
+              <PersonalInfo personalInfo={personalInfo} handleChange={handleChange} />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="education">
+              <AccordionTrigger>Education</AccordionTrigger>
+              <AccordionContent>
+              <Education education={education} handleChange={handleChange} removeField={removeField} addField={addField} />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="work-experience">
+              <AccordionTrigger>Work Experience</AccordionTrigger>
+              <AccordionContent>
+              <WorkExperience workExperience={workExperience} handleChange={handleChange} handleDetailChange={handleDetailChange} removeField={removeField} addField={addField} addDetail={addDetail} removeDetail={removeDetail} />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="projects">
+              <AccordionTrigger>Projects</AccordionTrigger>
+              <AccordionContent>
+              <Projects projects={projects} handleChange={handleChange} handleDetailChange={handleDetailChange} removeField={removeField} addField={addField} addDetail={addDetail} removeDetail={removeDetail} />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="skills">
+              <AccordionTrigger>Skills</AccordionTrigger>
+              <AccordionContent>
+              <Skills skills={skills} handleChange={handleChange} />
+              </AccordionContent>
+            </AccordionItem>
+            </Accordion>
+          <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Generate Resume</button>
+        </form>
+        {loading && <p className="text-gray-500">Loading...</p>}
+        {error && <p className="text-red-500">{error}</p>}
+      </div>
+      <div
+        className="w-1 bg-gray-300 cursor-col-resize"
+        onMouseDown={handleMouseDown}
+        style={{ width: '2px', cursor: 'col-resize' }}
+      />
+      <div className="pl-4" style={{ width: `${100 - dividerPosition}%` }}>
+        {resumeUrl && (
+          <div className="mt-4">
+            <h2 className="text-xl font-bold">Generated Resume</h2>
+            <iframe src={resumeUrl} width="100%" height="600px" title="Generated Resume"></iframe>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
