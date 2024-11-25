@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import PersonalInfo from './components/PersonalInfo';
+import Education from './components/Education';
+import WorkExperience from './components/WorkExperience';
+import Projects from './components/Projects';
+import Skills from './components/Skills';
 
 const ResumeBuilder = () => {
   const [personalInfo, setPersonalInfo] = useState({
@@ -14,10 +19,9 @@ const ResumeBuilder = () => {
   const [workExperience, setWorkExperience] = useState([{ company: '', position: '', location: '', dates: '', details: [''] }]);
   const [projects, setProjects] = useState([{ title: '', description: '', link: '', technologies: '', details: [''] }]);
   const [skills, setSkills] = useState({ languages: '', frameworks: '', tools: '' });
-  const [resume, setResume] = useState('');
+  const [resumeUrl, setResumeUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [resumeUrl, setResumeUrl] = useState('');
 
   const handleChange = (e, index, section, field) => {
     const value = e.target.value;
@@ -95,68 +99,11 @@ const ResumeBuilder = () => {
     <div>
       <h1>Resume Builder</h1>
       <form onSubmit={handleSubmit}>
-        <h2>Personal Information</h2>
-        <input type="text" name="name" placeholder="Name" value={personalInfo.name} onChange={(e) => handleChange(e, null, 'personalInfo', 'name')} />
-        <input type="email" name="email" placeholder="Email" value={personalInfo.email} onChange={(e) => handleChange(e, null, 'personalInfo', 'email')} />
-        <input type="text" name="github" placeholder="GitHub" value={personalInfo.github} onChange={(e) => handleChange(e, null, 'personalInfo', 'github')} />
-        <input type="text" name="linkedin" placeholder="LinkedIn" value={personalInfo.linkedin} onChange={(e) => handleChange(e, null, 'personalInfo', 'linkedin')} />
-        <input type="text" name="phone" placeholder="Phone" value={personalInfo.phone} onChange={(e) => handleChange(e, null, 'personalInfo', 'phone')} />
-        
-        <h2>Education</h2>
-        {education.map((edu, index) => (
-          <div key={index}>
-            <input type="text" placeholder="School" value={edu.school} onChange={(e) => handleChange(e, index, 'education', 'school')} />
-            <input type="text" placeholder="Degree" value={edu.degree} onChange={(e) => handleChange(e, index, 'education', 'degree')} />
-            <input type="text" placeholder="Dates" value={edu.dates} onChange={(e) => handleChange(e, index, 'education', 'dates')} />
-            <input type="text" placeholder="Location" value={edu.location} onChange={(e) => handleChange(e, index, 'education', 'location')} />
-            <textarea placeholder="Coursework" value={edu.coursework} onChange={(e) => handleChange(e, index, 'education', 'coursework')}></textarea>
-            <button type="button" onClick={() => removeField(index, 'education')}>Remove</button>
-          </div>
-        ))}
-        <button type="button" onClick={() => addField('education')}>Add Education</button>
-        
-        <h2>Work Experience</h2>
-        {workExperience.map((work, index) => (
-          <div key={index}>
-            <input type="text" placeholder="Company" value={work.company} onChange={(e) => handleChange(e, index, 'workExperience', 'company')} />
-            <input type="text" placeholder="Position" value={work.position} onChange={(e) => handleChange(e, index, 'workExperience', 'position')} />
-            <input type="text" placeholder="Location" value={work.location} onChange={(e) => handleChange(e, index, 'workExperience', 'location')} />
-            <input type="text" placeholder="Dates" value={work.dates} onChange={(e) => handleChange(e, index, 'workExperience', 'dates')} />
-            {work.details.map((detail, detailIndex) => (
-              <div key={detailIndex}>
-                <input type="text" placeholder="Detail" value={detail} onChange={(e) => handleDetailChange(e, index, detailIndex, 'workExperience')} />
-                <button type="button" onClick={() => removeDetail(index, detailIndex, 'workExperience')}>Remove Detail</button>
-              </div>
-            ))}
-            <button type="button" onClick={() => addDetail(index, 'workExperience')}>Add Detail</button>
-            <button type="button" onClick={() => removeField(index, 'workExperience')}>Remove</button>
-          </div>
-        ))}
-        <button type="button" onClick={() => addField('workExperience')}>Add Work Experience</button>
-        
-        <h2>Projects</h2>
-        {projects.map((project, index) => (
-          <div key={index}>
-            <input type="text" placeholder="Title" value={project.title} onChange={(e) => handleChange(e, index, 'projects', 'title')} />
-            <input type="text" placeholder="Link" value={project.link} onChange={(e) => handleChange(e, index, 'projects', 'link')} />
-            <input type="text" placeholder="Technologies" value={project.technologies} onChange={(e) => handleChange(e, index, 'projects', 'technologies')} />
-            {project.details.map((detail, detailIndex) => (
-              <div key={detailIndex}>
-                <input type="text" placeholder="Detail" value={detail} onChange={(e) => handleDetailChange(e, index, detailIndex, 'projects')} />
-                <button type="button" onClick={() => removeDetail(index, detailIndex, 'projects')}>Remove Detail</button>
-              </div>
-            ))}
-            <button type="button" onClick={() => addDetail(index, 'projects')}>Add Detail</button>
-            <button type="button" onClick={() => removeField(index, 'projects')}>Remove</button>
-          </div>
-        ))}
-        <button type="button" onClick={() => addField('projects')}>Add Project</button>
-        
-        <h2>Technical Skills</h2>
-        <input type="text" placeholder="Languages" value={skills.languages} onChange={(e) => handleChange(e, null, 'skills', 'languages')} />
-        <input type="text" placeholder="Frameworks" value={skills.frameworks} onChange={(e) => handleChange(e, null, 'skills', 'frameworks')} />
-        <input type="text" placeholder="Tools" value={skills.tools} onChange={(e) => handleChange(e, null, 'skills', 'tools')} />
-        
+        <PersonalInfo personalInfo={personalInfo} handleChange={handleChange} />
+        <Education education={education} handleChange={handleChange} removeField={removeField} addField={addField} />
+        <WorkExperience workExperience={workExperience} handleChange={handleChange} handleDetailChange={handleDetailChange} removeField={removeField} addField={addField} addDetail={addDetail} removeDetail={removeDetail} />
+        <Projects projects={projects} handleChange={handleChange} handleDetailChange={handleDetailChange} removeField={removeField} addField={addField} addDetail={addDetail} removeDetail={removeDetail} />
+        <Skills skills={skills} handleChange={handleChange} />
         <button type="submit">Generate Resume</button>
       </form>
 
