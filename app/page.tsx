@@ -26,7 +26,6 @@ interface PersonalInfoType {
 interface EducationType {
   school: string;
   degree: string;
-  dates: string;
   location: string;
   coursework: string;
 }
@@ -62,7 +61,13 @@ const Home: React.FC = () => {
     linkedin: '',
     phone: '',
   });
-  const [education, setEducation] = useState<EducationType[]>([{ school: '', degree: '', dates: '', location: '', coursework: '' }]);
+  const [showIcons, setShowIcons] = useState({
+    email: true,
+    github: true,
+    linkedin: true,
+    phone: true,
+  });
+  const [education, setEducation] = useState<EducationType[]>([{ school: '', degree: '', location: '', coursework: '' }]);
   const [workExperience, setWorkExperience] = useState<WorkExperienceType[]>([{ company: '', position: '', location: '', dates: '', details: [''] }]);
   const [projects, setProjects] = useState<ProjectType[]>([{ title: '', description: '', link: '', technologies: '', details: [''] }]);
   const [skills, setSkills] = useState<SkillsType>({ languages: '', frameworks: '', tools: '' });
@@ -71,6 +76,13 @@ const Home: React.FC = () => {
   const [error, setError] = useState('');
   const [dividerPosition, setDividerPosition] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const toggleIcon = (field: keyof typeof showIcons) => {
+    setShowIcons((prevState) => ({
+      ...prevState,
+      [field]: !prevState[field],
+    }));
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number | null, section: string, field: string) => {
     const value = e.target.value;
@@ -96,7 +108,7 @@ const Home: React.FC = () => {
   };
 
   const addField = (section: string) => {
-    if (section === 'education') setEducation([...education, { school: '', degree: '', dates: '', location: '', coursework: '' }]);
+    if (section === 'education') setEducation([...education, { school: '', degree: '', location: '', coursework: '' }]);
     if (section === 'workExperience') setWorkExperience([...workExperience, { company: '', position: '', location: '', dates: '', details: [''] }]);
     if (section === 'projects') setProjects([...projects, { title: '', description: '', link: '', technologies: '', details: [''] }]);
   };
@@ -121,17 +133,19 @@ const Home: React.FC = () => {
     if (section === 'projects') setProjects(updatedSection as ProjectType[]);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setLoading(true);
     setError('');
+
     try {
+      console.log(showIcons);
       const response = await axios.post('http://localhost:5000/api/generate-resume', {
         personalInfo,
         education,
         workExperience,
         projects,
         skills,
+        showIcons
       }, { responseType: 'blob' });
 
       const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
@@ -165,12 +179,12 @@ const Home: React.FC = () => {
   return (
     <div className="container mx-auto p-4 flex" ref={containerRef}>
       <div className="pr-4" style={{ width: `${dividerPosition}%` }}>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
             <Accordion type="single" collapsible>
             <AccordionItem value="personal-info">
               <AccordionTrigger>Personal Information</AccordionTrigger>
               <AccordionContent>
-              <PersonalInfo personalInfo={personalInfo} handleChange={handleChange} />
+              <PersonalInfo personalInfo={personalInfo} showIcons={showIcons} toggleIcon={toggleIcon} handleChange={handleChange} />
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="education">
@@ -198,7 +212,7 @@ const Home: React.FC = () => {
               </AccordionContent>
             </AccordionItem>
             </Accordion>
-          <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Generate Resume</button>
+          <button type="button" onClick={handleSubmit} className="bg-blue-500 text-white py-2 px-4 rounded">Generate Resume</button>
         </form>
         {loading && <p className="text-gray-500">Loading...</p>}
         {error && <p className="text-red-500">{error}</p>}
