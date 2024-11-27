@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import MonthPickerPopover from '../month-picker-popover';
 import { format } from 'date-fns';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { X, HelpCircle, Plus } from 'lucide-react';
 
 interface EducationProps {
   education: {
@@ -48,7 +49,7 @@ const Education: React.FC<EducationProps> = ({ education, handleChange, removeFi
               <Input type="text" placeholder="School" value={edu.school} onChange={(e) => handleChange(e, index, 'education', 'school')} />
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center">?</TooltipTrigger>
+                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
                   <TooltipContent>
                     <p>Enter the name of the school</p>
                   </TooltipContent>
@@ -61,7 +62,7 @@ const Education: React.FC<EducationProps> = ({ education, handleChange, removeFi
               <Input type="text" placeholder="Degree" value={edu.degree} onChange={(e) => handleChange(e, index, 'education', 'degree')} />
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center">?</TooltipTrigger>
+                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
                   <TooltipContent>
                     <p>Enter the degree obtained</p>
                   </TooltipContent>
@@ -76,7 +77,7 @@ const Education: React.FC<EducationProps> = ({ education, handleChange, removeFi
               <MonthPickerPopover placeholderText='End Date' showPresent={true} onDateChange={(date) => handleDateChange(date, index, 'endDate')} className="ml-4" />
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center">?</TooltipTrigger>
+                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
                   <TooltipContent>
                     <p>Select the start and end dates</p>
                   </TooltipContent>
@@ -89,7 +90,7 @@ const Education: React.FC<EducationProps> = ({ education, handleChange, removeFi
               <Input type="text" placeholder="Location" value={edu.location} onChange={(e) => handleChange(e, index, 'education', 'location')} />
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center">?</TooltipTrigger>
+                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
                   <TooltipContent>
                     <p>Enter the location of the school</p>
                   </TooltipContent>
@@ -102,7 +103,7 @@ const Education: React.FC<EducationProps> = ({ education, handleChange, removeFi
                 <Textarea placeholder="Coursework" value={edu.coursework} onChange={(e) => handleChange(e, index, 'education', 'coursework')} />
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center">?</TooltipTrigger>
+                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
                   <TooltipContent>
                     <p>Enter the coursework details</p>
                   </TooltipContent>
@@ -110,11 +111,13 @@ const Education: React.FC<EducationProps> = ({ education, handleChange, removeFi
               </TooltipProvider>
             </div>
           </div>
-          <Button type="button" variant={"destructive"} onClick={() => removeField(index, 'education')}>Remove</Button>
+          <Button type="button" variant={"destructive"} size={"icon"} onClick={() => removeField(index, 'education')}><X /> Remove</Button>
           <hr className="my-4" />
         </div>
       ))}
-      <Button type="button" onClick={() => addField('education')}>Add Education</Button>
+      <Button type="button" size={"icon"} onClick={() => addField('education')}>
+        <Plus /> Add Education
+      </Button>
     </div>
   );
 };
