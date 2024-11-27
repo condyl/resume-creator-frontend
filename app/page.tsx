@@ -99,7 +99,7 @@ const Home: React.FC = () => {
     }
   };
 
-  const handleDetailChange = (e: React.ChangeEvent<HTMLInputElement>, index: number, detailIndex: number, section: string) => {
+  const handleDetailChange = (e: React.ChangeEvent<HTMLTextAreaElement>, index: number, detailIndex: number, section: string) => {
     const value = e.target.value;
     const updatedSection: (WorkExperienceType | ProjectType)[] = [...(section === 'workExperience' ? workExperience : projects)];
     updatedSection[index].details[detailIndex] = value;

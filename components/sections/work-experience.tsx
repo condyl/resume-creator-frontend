@@ -42,7 +42,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({ workExperience, handleC
           value: combinedDates
         }
       } as React.ChangeEvent<HTMLInputElement>;
-      handleChange(event, index, 'education', 'dates');
+      handleChange(event, index, 'workExperience', 'dates');
     }
   };
 
