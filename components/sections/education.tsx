@@ -82,11 +82,11 @@ const Education: React.FC<EducationProps> = ({ education, handleChange, removeFi
               </TooltipProvider>
             </div>
           </div>
-          <Button type="button" variant={"destructive"} size={"icon"} onClick={() => removeField(index, 'education')}><X /> Remove Education</Button>
+          <Button type="button" variant={"destructive"} onClick={() => removeField(index, 'education')}><X /> Remove Education</Button>
           <hr className="my-4" />
         </div>
       ))}
-      <Button type="button" size={"icon"} onClick={() => addField('education')}>
+      <Button type="button" onClick={() => addField('education')}>
         <Plus /> Add Education
       </Button>
     </div>

@@ -13,6 +13,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 interface PersonalInfoType {
   name: string;
@@ -218,9 +220,11 @@ const Home: React.FC = () => {
               </AccordionContent>
             </AccordionItem>
             </Accordion>
-          <button type="button" onClick={handleSubmit} className="bg-blue-500 text-white py-2 px-4 rounded">Generate Resume</button>
+            <Button onClick={handleSubmit} disabled={loading} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+            {loading && <Loader2 className="animate-spin w-5 h-5 mr-2" />}
+            Generate Resume
+            </Button>
         </form>
-        {loading && <p className="text-gray-500">Loading...</p>}
         {error && <p className="text-red-500">{error}</p>}
       </div>
       <div
@@ -231,8 +235,7 @@ const Home: React.FC = () => {
       <div className="pl-4" style={{ width: `${100 - dividerPosition}%` }}>
         {resumeUrl && (
           <div className="mt-4">
-            <h2 className="text-xl font-bold">Generated Resume</h2>
-            <iframe src={resumeUrl} width="100%" height="600px" title="Generated Resume"></iframe>
+            <iframe src={resumeUrl} width="100%" height="825px" title="Generated Resume"></iframe>
           </div>
         )}
       </div>

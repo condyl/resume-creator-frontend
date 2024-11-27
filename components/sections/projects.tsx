@@ -55,21 +55,30 @@ const Projects: React.FC<ProjectsProps> = ({ projects, handleChange, handleDetai
         {project.details.map((detail, detailIndex) => (
           <div key={detailIndex} className="pb-2 flex items-center">
             <div className="w-full p-1 pl-1 flex items-center">
-              <Textarea placeholder="Detail" value={detail} onChange={(e) => handleDetailChange(e, index, detailIndex, 'projects')} />
-              <Button type="button" variant={"destructive"} size={"icon"} className="ml-2" onClick={() => removeDetail(index, detailIndex, 'projects')}><X /> Remove Detail</Button>
+            <Textarea placeholder="Detail" value={detail} onChange={(e) => handleDetailChange(e, index, detailIndex, 'projects')} />
+                <TooltipProvider>
+                  <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button type="button" variant={"destructive"} className="ml-2" onClick={() => removeDetail(index, detailIndex, 'projects')}><X /></Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Remove Detail</p>
+                  </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
             </div>
           </div>
         ))}
         <div className="pb-2 flex items-center">
-          <Button type="button" size={"icon"} onClick={() => addDetail(index, 'projects')}><Plus /> Add Detail</Button>
+          <Button type="button" onClick={() => addDetail(index, 'projects')}><Plus /> Add Detail</Button>
         </div>
         <div className="pb-2 flex items-center">
-          <Button type="button" variant={"destructive"} size={"icon"} onClick={() => removeField(index, 'projects')}><X /> Remove Project</Button>
+          <Button type="button" variant={"destructive"} onClick={() => removeField(index, 'projects')}><X /> Remove Project</Button>
         </div>
         <hr className="my-4" />
       </div>
     ))}
-    <Button type="button" size={"icon"} onClick={() => addField('projects')}><Plus /> Add Project</Button>
+    <Button type="button" onClick={() => addField('projects')}><Plus /> Add Project</Button>
   </div>
 );
 
