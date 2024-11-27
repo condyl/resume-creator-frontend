@@ -64,7 +64,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({ workExperience, handleC
             <div className="w-full p-1 flex items-center">
               <MonthPickerPopover placeholderText='Start Date' onDateChange={(date) => handleDateChange(date, index, 'startDate')} />
               <div className="mx-1"></div>
-              <MonthPickerPopover placeholderText='End Date' showPresent={true} onDateChange={(date) => handleDateChange(date, index, 'endDate')} className="ml-4" />
+              <MonthPickerPopover placeholderText='End Date' showPresent={true} onDateChange={(date) => handleDateChange(date, index, 'endDate', true)} className="ml-4" />
             </div>
           </div>
           <div className="pb-2 flex items-center">
