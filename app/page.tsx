@@ -165,11 +165,17 @@ const Home: React.FC = () => {
     const handleMouseMove = (e: MouseEvent) => {
       const newDividerPosition = ((e.clientX - startX) / startWidth) * 100 + dividerPosition;
       setDividerPosition(Math.max(10, Math.min(90, newDividerPosition)));
+      if (containerRef.current) {
+        containerRef.current.style.pointerEvents = 'none';
+      }
     };
 
     const handleMouseUp = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      if (containerRef.current) {
+        containerRef.current.style.pointerEvents = 'auto';
+      }
     };
 
     document.addEventListener('mousemove', handleMouseMove);
