@@ -22,22 +22,24 @@ interface EducationProps {
 const Education: React.FC<EducationProps> = ({ education, handleChange, removeField, addField }) => {
   const [dates, setDates] = useState<{ startDate: string, endDate: string }[]>(education.map(() => ({ startDate: '', endDate: '' })));
 
-  const handleDateChange = (date: Date | "Present", index: number, field: string) => {
+  const handleDateChange = (date: Date | "Present", index: number, field: string, formatDate: boolean = false) => {
     const value = date === "Present" ? "Present" : date.toISOString();
     const newDates = [...dates];
     newDates[index] = { ...newDates[index], [field]: value };
     setDates(newDates);
 
-    const formattedStartDate = newDates[index].startDate === "Present" ? "Present" : format(new Date(newDates[index].startDate), "MMM yyyy");
-    const formattedEndDate = newDates[index].endDate === "Present" ? "Present" : format(new Date(newDates[index].endDate), "MMM yyyy");
-    const combinedDates = `${formattedStartDate} - ${formattedEndDate}`;
-    
-    const event = {
-      target: {
-        value: combinedDates
-      }
-    } as React.ChangeEvent<HTMLInputElement>;
-    handleChange(event, index, 'education', 'dates');
+    if (formatDate) {
+      const formattedStartDate = newDates[index].startDate === "Present" ? "Present" : format(new Date(newDates[index].startDate), "MMM yyyy");
+      const formattedEndDate = newDates[index].endDate === "Present" ? "Present" : format(new Date(newDates[index].endDate), "MMM yyyy");
+      const combinedDates = `${formattedStartDate} - ${formattedEndDate}`;
+  
+      const event = {
+        target: {
+          value: combinedDates
+        }
+      } as React.ChangeEvent<HTMLInputElement>;
+      handleChange(event, index, 'education', 'dates');
+    }
   };
 
   return (
@@ -47,55 +49,23 @@ const Education: React.FC<EducationProps> = ({ education, handleChange, removeFi
           <div className="pb-2 flex items-center">
             <div className="w-full p-1 flex items-center">
               <Input type="text" placeholder="School" value={edu.school} onChange={(e) => handleChange(e, index, 'education', 'school')} />
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
-                  <TooltipContent>
-                    <p>Enter the name of the school</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
             </div>
           </div>
           <div className="pb-2 flex items-center">
             <div className="w-full p-1 flex items-center">
               <Input type="text" placeholder="Degree" value={edu.degree} onChange={(e) => handleChange(e, index, 'education', 'degree')} />
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
-                  <TooltipContent>
-                    <p>Enter the degree obtained</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
             </div>
           </div>
           <div className="pb-2 flex items-center">
             <div className="w-full p-1 flex items-center">
               <MonthPickerPopover placeholderText='Start Date' onDateChange={(date) => handleDateChange(date, index, 'startDate')} />
               <div className="mx-1"></div>
-              <MonthPickerPopover placeholderText='End Date' showPresent={true} onDateChange={(date) => handleDateChange(date, index, 'endDate')} className="ml-4" />
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
-                  <TooltipContent>
-                    <p>Select the start and end dates</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <MonthPickerPopover placeholderText='End Date' showPresent={true} onDateChange={(date) => handleDateChange(date, index, 'endDate', true)} className="ml-4"  />
             </div>
           </div>
           <div className="pb-2 flex items-center">
             <div className="w-full p-1 flex items-center">
               <Input type="text" placeholder="Location" value={edu.location} onChange={(e) => handleChange(e, index, 'education', 'location')} />
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
-                  <TooltipContent>
-                    <p>Enter the location of the school</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
             </div>
           </div>
           <div className="pb-2 flex items-center">
@@ -105,13 +75,14 @@ const Education: React.FC<EducationProps> = ({ education, handleChange, removeFi
                 <Tooltip>
                   <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
                   <TooltipContent>
-                    <p>Enter the coursework details</p>
+                    <p>Enter the coursework details (comma separated)</p>
+                    <p>E.g. Data Structures, Algorithms, ...</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
           </div>
-          <Button type="button" variant={"destructive"} size={"icon"} onClick={() => removeField(index, 'education')}><X /> Remove</Button>
+          <Button type="button" variant={"destructive"} size={"icon"} onClick={() => removeField(index, 'education')}><X /> Remove Education</Button>
           <hr className="my-4" />
         </div>
       ))}
