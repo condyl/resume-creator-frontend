@@ -26,22 +26,24 @@ interface WorkExperienceProps {
 const WorkExperience: React.FC<WorkExperienceProps> = ({ workExperience, handleChange, handleDetailChange, removeField, addField, addDetail, removeDetail }) => {
   const [dates, setDates] = useState<{ startDate: string, endDate: string }[]>(workExperience.map(() => ({ startDate: '', endDate: '' })));
 
-  const handleDateChange = (date: Date | "Present", index: number, field: string) => {
+  const handleDateChange = (date: Date | "Present", index: number, field: string, formatDate: boolean = false) => {
     const value = date === "Present" ? "Present" : date.toISOString();
     const newDates = [...dates];
     newDates[index] = { ...newDates[index], [field]: value };
     setDates(newDates);
 
-    const formattedStartDate = newDates[index].startDate === "Present" ? "Present" : format(new Date(newDates[index].startDate), "MMM yyyy");
-    const formattedEndDate = newDates[index].endDate === "Present" ? "Present" : format(new Date(newDates[index].endDate), "MMM yyyy");
-    const combinedDates = `${formattedStartDate} - ${formattedEndDate}`;
-    
-    const event = {
-      target: {
-        value: combinedDates
-      }
-    } as React.ChangeEvent<HTMLInputElement>;
-    handleChange(event, index, 'workExperience', 'dates');
+    if (formatDate) {
+      const formattedStartDate = newDates[index].startDate === "Present" ? "Present" : format(new Date(newDates[index].startDate), "MMM yyyy");
+      const formattedEndDate = newDates[index].endDate === "Present" ? "Present" : format(new Date(newDates[index].endDate), "MMM yyyy");
+      const combinedDates = `${formattedStartDate} - ${formattedEndDate}`;
+  
+      const event = {
+        target: {
+          value: combinedDates
+        }
+      } as React.ChangeEvent<HTMLInputElement>;
+      handleChange(event, index, 'education', 'dates');
+    }
   };
 
   return (
