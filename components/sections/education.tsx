@@ -60,7 +60,7 @@ const Education: React.FC<EducationProps> = ({ education, handleChange, removeFi
             <div className="w-full p-1 flex items-center">
               <MonthPickerPopover placeholderText='Start Date' onDateChange={(date) => handleDateChange(date, index, 'startDate')} />
               <div className="mx-1"></div>
-              <MonthPickerPopover placeholderText='End Date' showPresent={true} onDateChange={(date) => handleDateChange(date, index, 'endDate', true)} className="ml-4"  />
+              <MonthPickerPopover placeholderText='End Date' showPresent={true} onDateChange={(date) => handleDateChange(date, index, 'endDate', true)} />
             </div>
           </div>
           <div className="pb-2 flex items-center">

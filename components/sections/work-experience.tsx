@@ -16,7 +16,7 @@ interface WorkExperienceProps {
     details: string[];
   }>;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>, index: number, section: string, field: string) => void;
-  handleDetailChange: (e: React.ChangeEvent<HTMLInputElement>, index: number, detailIndex: number, section: string) => void;
+  handleDetailChange: (e: React.ChangeEvent<HTMLTextAreaElement>, index: number, detailIndex: number, section: string) => void;
   removeField: (index: number, section: string) => void;
   addField: (section: string) => void;
   addDetail: (index: number, section: string) => void;
@@ -64,7 +64,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({ workExperience, handleC
             <div className="w-full p-1 flex items-center">
               <MonthPickerPopover placeholderText='Start Date' onDateChange={(date) => handleDateChange(date, index, 'startDate')} />
               <div className="mx-1"></div>
-              <MonthPickerPopover placeholderText='End Date' showPresent={true} onDateChange={(date) => handleDateChange(date, index, 'endDate', true)} className="ml-4" />
+              <MonthPickerPopover placeholderText='End Date' showPresent={true} onDateChange={(date) => handleDateChange(date, index, 'endDate', true)} />
             </div>
           </div>
           <div className="pb-2 flex items-center">
