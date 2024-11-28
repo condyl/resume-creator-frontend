@@ -15,6 +15,7 @@ interface PersonalInfoProps {
   };
   showIcons: Record<IconFields, boolean>;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>, index: number | null, section: string, field: string) => void;
+  toggleIcon: (field: IconFields) => void;
 }
 
 const PersonalInfo: React.FC<PersonalInfoProps> = ({ personalInfo, showIcons, toggleIcon, handleChange }) => {
