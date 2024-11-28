@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { X, Plus, HelpCircle } from 'lucide-react';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import AIImprovementButton from '@/components/ui/ai-improvement-button';
 
 interface ProjectsProps {
   projects: Array<{
@@ -55,17 +56,27 @@ const Projects: React.FC<ProjectsProps> = ({ projects, handleChange, handleDetai
         {project.details.map((detail, detailIndex) => (
           <div key={detailIndex} className="pb-2 flex items-center">
             <div className="w-full p-1 pl-1 flex items-center">
-            <Textarea placeholder="Detail" value={detail} onChange={(e) => handleDetailChange(e, index, detailIndex, 'projects')} />
-                <TooltipProvider>
-                  <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button type="button" variant={"destructive"} className="ml-2" onClick={() => removeDetail(index, detailIndex, 'projects')}><X /></Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Remove Detail</p>
-                  </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+              <div className="relative w-full">
+                <Textarea placeholder="Detail" value={detail} onChange={(e) => handleDetailChange(e, index, detailIndex, 'projects')} className="pr-10" />
+                <AIImprovementButton text={detail} onTextImproved={(improvedText) => {
+                  const event = {
+                    target: {
+                      value: improvedText
+                    }
+                  } as React.ChangeEvent<HTMLTextAreaElement>;
+                  handleDetailChange(event, index, detailIndex, 'projects');
+                }} />
+              </div>
+              <TooltipProvider>
+                <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button type="button" variant={"destructive"} className="ml-2" onClick={() => removeDetail(index, detailIndex, 'projects')}><X /></Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Remove Detail</p>
+                </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         ))}

@@ -5,7 +5,9 @@ import { Textarea } from '@/components/ui/textarea';
 import MonthPickerPopover from '../month-picker-popover';
 import { format } from 'date-fns';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { X, HelpCircle, Plus } from 'lucide-react';
+import { X, Plus, Brain } from 'lucide-react';
+import axios from 'axios';
+import AIImprovementButton from '@/components/ui/ai-improvement-button';
 
 interface WorkExperienceProps {
   workExperience: Array<{
@@ -46,6 +48,30 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({ workExperience, handleC
     }
   };
 
+  const handleImproveText = async (text: string, index: number, detailIndex: number) => {
+    if (!text) {
+      console.error('No text provided');
+      return;
+    }
+  
+    try {
+      const response = await axios.post('http://localhost:5000/api/improve-text', { text }, { headers: { 'Content-Type': 'application/json' } });
+      const improvedText = response.data.improvedText;
+      const event = {
+        target: {
+          value: improvedText
+        }
+      } as React.ChangeEvent<HTMLTextAreaElement>;
+      handleDetailChange(event, index, detailIndex, 'workExperience');
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.error('Error improving text:', error.response.data);
+      } else {
+        console.error('Error improving text:', error);
+      }
+    }
+  };
+
   return (
     <div>
       {workExperience.map((work, index) => (
@@ -78,9 +104,19 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({ workExperience, handleC
             </div>
           </div>
           {work.details.map((detail, detailIndex) => (
-            <div key={detailIndex} className="pb-2 flex items-center">
-              <div className="w-full p-1 pl-1 flex items-center">
-                <Textarea placeholder="Detail" value={detail} onChange={(e) => handleDetailChange(e, index, detailIndex, 'workExperience')} />
+            <div key={detailIndex} className="pb-2 flex items-center relative">
+              <div className="w-full p-1 relative flex items-center">
+                <div className="relative w-full">
+                  <Textarea placeholder="Detail" value={detail} onChange={(e) => handleDetailChange(e, index, detailIndex, 'workExperience')} className="pr-10" />
+                  <AIImprovementButton text={detail} onTextImproved={(improvedText) => {
+                    const event = {
+                      target: {
+                        value: improvedText
+                      }
+                    } as React.ChangeEvent<HTMLTextAreaElement>;
+                    handleDetailChange(event, index, detailIndex, 'workExperience');
+                  }} />
+                </div>
                 <TooltipProvider>
                   <Tooltip>
                   <TooltipTrigger asChild>
