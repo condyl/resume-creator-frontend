@@ -27,7 +27,7 @@ const AIImprovementButton: React.FC<AIImprovementButtonProps> = ({ text, onTextI
     setError(null);
 
     try {
-      const response = await axios.post('http://connorsresumebuilder.com/api/improve-text', { text }, { headers: { 'Content-Type': 'application/json' } });
+      const response = await axios.post('https://connorsresumebuilder.com/api/improve-text', { text }, { headers: { 'Content-Type': 'application/json' } });
       const improvedText = response.data.improvedText;
       if (improvedText.includes("ERROR")) {
         throw new Error("AI returned an error.");

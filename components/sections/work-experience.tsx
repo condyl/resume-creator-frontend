@@ -55,7 +55,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({ workExperience, handleC
     }
   
     try {
-      const response = await axios.post('http://connorsresumebuilder.com/api/improve-text', { text }, { headers: { 'Content-Type': 'application/json' } });
+      const response = await axios.post('https://connorsresumebuilder.com/api/improve-text', { text }, { headers: { 'Content-Type': 'application/json' } });
       const improvedText = response.data.improvedText;
       const event = {
         target: {
