@@ -141,7 +141,7 @@ const Home: React.FC = () => {
 
     try {
       console.log(showIcons);
-      const response = await axios.post('http://146.190.249.228:5000/api/generate-resume', {
+      const response = await axios.post('http://connorsresumebuilder.com/api/generate-resume', {
         personalInfo,
         education,
         workExperience,
