@@ -55,7 +55,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({ workExperience, handleC
     }
   
     try {
-      const response = await axios.post('http://localhost:5000/api/improve-text', { text }, { headers: { 'Content-Type': 'application/json' } });
+      const response = await axios.post('http://146.190.249.228:5000/api/improve-text', { text }, { headers: { 'Content-Type': 'application/json' } });
       const improvedText = response.data.improvedText;
       const event = {
         target: {

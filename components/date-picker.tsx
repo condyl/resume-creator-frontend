@@ -16,10 +16,12 @@ interface DatePickerProps {
 export function DatePicker({ placeholderText = "Pick a date", onChange }: DatePickerProps) {
     const [date, setDate] = React.useState<Date>()
 
-    const handleDateChange = (selectedDate: Date) => {
-        setDate(selectedDate);
-        if (onChange) {
-            onChange(selectedDate);
+    const handleDateChange = (selectedDate: Date | undefined) => {
+        if (selectedDate) {
+            setDate(selectedDate);
+            if (onChange) {
+                onChange(selectedDate);
+            }
         }
     };
 

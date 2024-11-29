@@ -86,7 +86,7 @@ const Home: React.FC = () => {
     }));
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number | null, section: string, field: string) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number | null, section: string, field: string) => {
     const value = e.target.value;
     if (section === 'personalInfo') {
       setPersonalInfo((prev) => ({ ...prev, [field]: value }));
@@ -141,7 +141,7 @@ const Home: React.FC = () => {
 
     try {
       console.log(showIcons);
-      const response = await axios.post('http://localhost:5000/api/generate-resume', {
+      const response = await axios.post('http://146.190.249.228:5000/api/generate-resume', {
         personalInfo,
         education,
         workExperience,
