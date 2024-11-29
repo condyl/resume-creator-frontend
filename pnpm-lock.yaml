@@ -116,6 +116,9 @@ importers:
       typescript:
         specifier: 5.2.2
         version: 5.2.2
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
 
 packages:
 
@@ -2512,6 +2515,9 @@ packages:
 
   zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
+
+  zod@3.23.8:
+    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
 snapshots:
 
@@ -5231,3 +5237,5 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   zod@3.21.4: {}
+
+  zod@3.23.8: {}
