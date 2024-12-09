@@ -4,11 +4,14 @@ import { Brain, Loader2, AlertTriangle  } from 'lucide-react';
 import axios from 'axios';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { BASE_URL } from '@/config';
 
 interface AIImprovementButtonProps {
   text: string;
   onTextImproved: (improvedText: string) => void;
 }
+
+// const BASE_URL = 'https://connorsresumebuilder.com'; // Change to 'http://localhost:5000' for local testing
 
 const AIImprovementButton: React.FC<AIImprovementButtonProps> = ({ text, onTextImproved }) => {
   const [loading, setLoading] = useState(false);
@@ -27,7 +30,7 @@ const AIImprovementButton: React.FC<AIImprovementButtonProps> = ({ text, onTextI
     setError(null);
 
     try {
-      const response = await axios.post('https://connorsresumebuilder.com/api/improve-text', { text }, { headers: { 'Content-Type': 'application/json' } });
+      const response = await axios.post(`${BASE_URL}/api/improve-text`, { text }, { headers: { 'Content-Type': 'application/json' } });
       const improvedText = response.data.improvedText;
       if (improvedText.includes("ERROR")) {
         throw new Error("AI returned an error.");

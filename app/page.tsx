@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/accordion"
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import { BASE_URL } from '@/config';
 
 interface PersonalInfoType {
   name: string;
@@ -36,7 +37,8 @@ interface WorkExperienceType {
   company: string;
   position: string;
   location: string;
-  dates: string;
+  startDate: string;
+  endDate: string;
   details: string[];
 }
 
@@ -54,6 +56,8 @@ interface SkillsType {
   tools: string;
 }
 
+// Change to 'http://localhost:5000' for local testing
+
 const Home: React.FC = () => {
   const [personalInfo, setPersonalInfo] = useState<PersonalInfoType>({
     name: '',
@@ -70,7 +74,7 @@ const Home: React.FC = () => {
     phone: true,
   });
   const [education, setEducation] = useState<EducationType[]>([{ school: '', degree: '', location: '', coursework: '' }]);
-  const [workExperience, setWorkExperience] = useState<WorkExperienceType[]>([{ company: '', position: '', location: '', dates: '', details: [''] }]);
+  const [workExperience, setWorkExperience] = useState<WorkExperienceType[]>([{ company: '', position: '', location: '', startDate: '', endDate: '', details: [''] }]);
   const [projects, setProjects] = useState<ProjectType[]>([{ title: '', description: '', link: '', technologies: '', details: [''] }]);
   const [skills, setSkills] = useState<SkillsType>({ languages: '', frameworks: '', tools: '' });
   const [resumeUrl, setResumeUrl] = useState('');
@@ -111,7 +115,7 @@ const Home: React.FC = () => {
 
   const addField = (section: string) => {
     if (section === 'education') setEducation([...education, { school: '', degree: '', location: '', coursework: '' }]);
-    if (section === 'workExperience') setWorkExperience([...workExperience, { company: '', position: '', location: '', dates: '', details: [''] }]);
+    if (section === 'workExperience') setWorkExperience([...workExperience, { company: '', position: '', location: '', startDate: '', endDate: '', details: [''] }]);
     if (section === 'projects') setProjects([...projects, { title: '', description: '', link: '', technologies: '', details: [''] }]);
   };
 
@@ -141,7 +145,7 @@ const Home: React.FC = () => {
 
     try {
       console.log(showIcons);
-      const response = await axios.post('https://connorsresumebuilder.com/api/generate-resume', {
+      const response = await axios.post(`${BASE_URL}/api/generate-resume`, {
         personalInfo,
         education,
         workExperience,

@@ -8,17 +8,19 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/comp
 import { X, Plus, Brain } from 'lucide-react';
 import axios from 'axios';
 import AIImprovementButton from '@/components/ui/ai-improvement-button';
+import { BASE_URL } from '@/config';
 
 interface WorkExperienceProps {
-  workExperience: Array<{
+  workExperience: {
     company: string;
     position: string;
+    startDate: string;
+    endDate: string;
     location: string;
-    dates: string;
     details: string[];
-  }>;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>, index: number, section: string, field: string) => void;
-  handleDetailChange: (e: React.ChangeEvent<HTMLTextAreaElement>, index: number, detailIndex: number, section: string) => void;
+  }[];
+  handleChange: (event: React.ChangeEvent<HTMLInputElement>, index: number, section: string, field: string) => void;
+  handleDetailChange: (event: React.ChangeEvent<HTMLTextAreaElement>, index: number, detailIndex: number, section: string) => void;
   removeField: (index: number, section: string) => void;
   addField: (section: string) => void;
   addDetail: (index: number, section: string) => void;
@@ -55,7 +57,7 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({ workExperience, handleC
     }
   
     try {
-      const response = await axios.post('https://connorsresumebuilder.com/api/improve-text', { text }, { headers: { 'Content-Type': 'application/json' } });
+      const response = await axios.post(`${BASE_URL}/api/improve-text`, { text }, { headers: { 'Content-Type': 'application/json' } });
       const improvedText = response.data.improvedText;
       const event = {
         target: {
