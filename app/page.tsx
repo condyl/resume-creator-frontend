@@ -56,8 +56,6 @@ interface SkillsType {
   tools: string;
 }
 
-// Change to 'http://localhost:5000' for local testing
-
 const Home: React.FC = () => {
   const [personalInfo, setPersonalInfo] = useState<PersonalInfoType>({
     name: '',
@@ -81,6 +79,11 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isSlideoutOpen, setIsSlideoutOpen] = useState(false);
+
+  const toggleSlideout = () => {
+    setIsSlideoutOpen((prev) => !prev);
+  };
 
   const toggleIcon = (field: keyof typeof showIcons) => {
     setShowIcons((prevState) => ({
@@ -163,10 +166,28 @@ const Home: React.FC = () => {
     }
   };
 
+  const handleOutsideClick = (e: MouseEvent) => {
+    if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      setIsSlideoutOpen(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (isSlideoutOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    } else {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [isSlideoutOpen]);
+
   return (
-    <div className="container mx-auto p-4 flex" ref={containerRef}>
-      <div className="pr-4 w-1/2">
-        <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+    <div className="container mx-auto p-4 flex flex-col md:flex-row" ref={containerRef}>
+      <div className="pr-4 w-full md:w-1/2">
+        <form onSubmit={(e) => e.preventDefault()} className="space-y-4 w-full md:w-auto">
             <Accordion type="single" collapsible>
             <AccordionItem value="personal-info">
               <AccordionTrigger>Personal Information</AccordionTrigger>
@@ -199,18 +220,26 @@ const Home: React.FC = () => {
               </AccordionContent>
             </AccordionItem>
             </Accordion>
-            <Button onClick={handleSubmit} disabled={loading} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+            <Button onClick={handleSubmit} disabled={loading} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full md:w-auto">
             {loading && <Loader2 className="animate-spin w-5 h-5 mr-2" />}
             Generate Resume
             </Button>
         </form>
         {error && <p className="text-red-500">{error}</p>}
       </div>
+      {resumeUrl && (
+        <button
+          onClick={toggleSlideout}
+          className="fixed right-4 bottom-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded md:hidden"
+        >
+          View Resume
+        </button>
+      )}
       <div
-        className="bg-gray-300 fixed top-14 left-1/2"
+        className="bg-gray-300 fixed top-14 left-1/2 hidden md:block"
         style={{ width: '2px', zIndex: 10, height: 'calc(100vh - 3.5rem)' }}
       />
-      <div className="pl-4 w-1/2 ml-0.5">
+      <div className="pl-4 w-full md:w-1/2 ml-0.5 hidden md:block">
         <div className="fixed top-10 right-0 h-full overflow-y-auto" style={{ width: 'calc(50% - 2px)' }}>
           {resumeUrl && (
             <div className="mt-4 w-full">
@@ -218,6 +247,31 @@ const Home: React.FC = () => {
             </div>
           )}
         </div>
+      </div>
+      <div
+        className={`fixed top-0 right-0 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
+          isSlideoutOpen ? 'translate-x-0' : 'translate-x-full'
+        } md:hidden`}
+        style={{ width: '100%' }}
+        ref={containerRef}
+      >
+        <button
+          onClick={toggleSlideout}
+          className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+        >
+          Close
+        </button>
+        {resumeUrl && (
+          <div className="mt-4 w-full">
+            <iframe src={resumeUrl} width="100%" height="100%" title="Generated Resume"></iframe>
+          </div>
+        )}
+        <button
+          onClick={() => setIsSlideoutOpen(false)}
+          className="absolute bottom-4 right-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+        >
+          Hide Resume
+        </button>
       </div>
     </div>
   );
