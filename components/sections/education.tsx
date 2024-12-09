@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import MonthPickerPopover from '../month-picker-popover';
 import { format } from 'date-fns';
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { X, HelpCircle, Plus } from 'lucide-react';
 
 interface EducationProps {
@@ -71,15 +71,13 @@ const Education: React.FC<EducationProps> = ({ education, handleChange, removeFi
           <div className="pb-2 flex items-center">
             <div className="w-full p-1 flex items-center">
                 <Textarea placeholder="Coursework" value={edu.coursework} onChange={(e) => handleChange(e, index, 'education', 'coursework')} />
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
-                  <TooltipContent>
-                    <p>Enter the coursework details (comma separated)</p>
-                    <p>E.g. Data Structures, Algorithms, ...</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
+                <TooltipContent>
+                  <p>Enter the coursework details (comma separated)</p>
+                  <p>E.g. Data Structures, Algorithms, ...</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
           </div>
           <Button type="button" variant={"destructive"} onClick={() => removeField(index, 'education')}><X /> Remove Education</Button>

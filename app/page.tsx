@@ -80,7 +80,6 @@ const Home: React.FC = () => {
   const [resumeUrl, setResumeUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [dividerPosition, setDividerPosition] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const toggleIcon = (field: keyof typeof showIcons) => {
@@ -164,33 +163,9 @@ const Home: React.FC = () => {
     }
   };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    const startX = e.clientX;
-    const startWidth = containerRef.current?.offsetWidth || 0;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const newDividerPosition = ((e.clientX - startX) / startWidth) * 100 + dividerPosition;
-      setDividerPosition(Math.max(10, Math.min(90, newDividerPosition)));
-      if (containerRef.current) {
-        containerRef.current.style.pointerEvents = 'none';
-      }
-    };
-
-    const handleMouseUp = () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      if (containerRef.current) {
-        containerRef.current.style.pointerEvents = 'auto';
-      }
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  };
-
   return (
     <div className="container mx-auto p-4 flex" ref={containerRef}>
-      <div className="pr-4" style={{ width: `${dividerPosition}%` }}>
+      <div className="pr-4 w-1/2">
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
             <Accordion type="single" collapsible>
             <AccordionItem value="personal-info">
@@ -232,16 +207,17 @@ const Home: React.FC = () => {
         {error && <p className="text-red-500">{error}</p>}
       </div>
       <div
-        className="w-1 bg-gray-300 cursor-col-resize"
-        onMouseDown={handleMouseDown}
-        style={{ width: '2px', cursor: 'col-resize' }}
+        className="bg-gray-300 fixed top-14 left-1/2"
+        style={{ width: '2px', zIndex: 10, height: 'calc(100vh - 3.5rem)' }}
       />
-      <div className="pl-4" style={{ width: `${100 - dividerPosition}%` }}>
-        {resumeUrl && (
-          <div className="mt-4">
-            <iframe src={resumeUrl} width="100%" height="825px" title="Generated Resume"></iframe>
-          </div>
-        )}
+      <div className="pl-4 w-1/2 ml-0.5">
+        <div className="fixed top-10 right-0 h-full overflow-y-auto" style={{ width: 'calc(50% - 2px)' }}>
+          {resumeUrl && (
+            <div className="mt-4 w-full">
+              <iframe src={resumeUrl} width="100%" height="825px" title="Generated Resume"></iframe>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

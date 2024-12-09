@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import MonthPickerPopover from '../month-picker-popover';
 import { format } from 'date-fns';
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { X, Plus, Brain } from 'lucide-react';
 import axios from 'axios';
 import AIImprovementButton from '@/components/ui/ai-improvement-button';
@@ -119,16 +119,14 @@ const WorkExperience: React.FC<WorkExperienceProps> = ({ workExperience, handleC
                     handleDetailChange(event, index, detailIndex, 'workExperience');
                   }} />
                 </div>
-                <TooltipProvider>
-                  <Tooltip>
+                <Tooltip>
                   <TooltipTrigger asChild>
                     <Button type="button" variant={"destructive"} className="ml-2" onClick={() => removeDetail(index, detailIndex, 'workExperience')}><X /></Button>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Remove Detail</p>
                   </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                </Tooltip>
               </div>
             </div>
           ))}

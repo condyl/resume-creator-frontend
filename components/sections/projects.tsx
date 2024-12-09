@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { X, Plus, HelpCircle } from 'lucide-react';
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import AIImprovementButton from '@/components/ui/ai-improvement-button';
 
 interface ProjectsProps {
@@ -33,14 +33,12 @@ const Projects: React.FC<ProjectsProps> = ({ projects, handleChange, handleDetai
         <div className="pb-2 flex items-center">
           <div className="w-full p-1 flex items-center">
             <Input type="text" placeholder="Link" value={project.link} onChange={(e) => handleChange(e, index, 'projects', 'link')} />
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
-                <TooltipContent>
-                  <p>Hyperlinked in project title</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
+              <TooltipContent>
+                <p>Hyperlinked in project title</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
         <div className="pb-2 flex items-center">
@@ -67,16 +65,14 @@ const Projects: React.FC<ProjectsProps> = ({ projects, handleChange, handleDetai
                   handleDetailChange(event, index, detailIndex, 'projects');
                 }} />
               </div>
-              <TooltipProvider>
-                <Tooltip>
+              <Tooltip>
                 <TooltipTrigger asChild>
                   <Button type="button" variant={"destructive"} className="ml-2" onClick={() => removeDetail(index, detailIndex, 'projects')}><X /></Button>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Remove Detail</p>
                 </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              </Tooltip>
             </div>
           </div>
         ))}
