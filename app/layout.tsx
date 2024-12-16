@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/site-header"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { Toaster as DefaultToaster } from "@/components/ui/toaster"
 
+
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,

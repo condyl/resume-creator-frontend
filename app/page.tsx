@@ -16,6 +16,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { BASE_URL } from '@/config';
+import PDFViewer from '@/components/pdf-viewer';
+import { pdfjs } from 'react-pdf';
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
 
 interface PersonalInfoType {
   name: string;
@@ -240,10 +247,10 @@ const Home: React.FC = () => {
         style={{ width: '2px', zIndex: 10, height: 'calc(100vh - 3.5rem)' }}
       />
       <div className="pl-4 w-full md:w-1/2 ml-0.5 hidden md:block">
-        <div className="fixed top-10 right-0 h-full overflow-y-auto" style={{ width: 'calc(50% - 2px)' }}>
+        <div className="fixed top-10 right-0 h-full overflow-y-auto" style={{ width: 'calc(50% - 2px)', maxWidth: '100vw' }}>
           {resumeUrl && (
             <div className="mt-4 w-full">
-              <iframe src={resumeUrl} width="100%" height="825px" title="Generated Resume"></iframe>
+              <PDFViewer url={resumeUrl} />
             </div>
           )}
         </div>
@@ -252,7 +259,7 @@ const Home: React.FC = () => {
         className={`fixed top-0 right-0 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
           isSlideoutOpen ? 'translate-x-0' : 'translate-x-full'
         } md:hidden`}
-        style={{ width: '100%' }}
+        style={{ width: '100vw' }}
         ref={containerRef}
       >
         <button
@@ -262,8 +269,8 @@ const Home: React.FC = () => {
           Close
         </button>
         {resumeUrl && (
-          <div className="mt-4 w-full">
-            <iframe src={resumeUrl} width="100%" height="100%" title="Generated Resume"></iframe>
+          <div className="mt-16 w-full">
+            <PDFViewer url={resumeUrl} />
           </div>
         )}
         <button
