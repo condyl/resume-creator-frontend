@@ -120,7 +120,7 @@ export function SaveResumeDialog({ onSave, resumeData, currentResume }: SaveResu
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => handleSave(false)}>
-              Update &quot;{currentResume.name}&quot;
+              Update "{currentResume.name}"
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setOpen(true)}>
               Save as new resume...
@@ -128,39 +128,38 @@ export function SaveResumeDialog({ onSave, resumeData, currentResume }: SaveResu
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline">Save Resume</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Save Resume</DialogTitle>
-              <DialogDescription>
-                Enter a name for your resume to save it to your account.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  Name
-                </Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="col-span-3"
-                  placeholder="My Resume"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit" onClick={() => handleSave(true)} disabled={saving}>
-                {saving ? "Saving..." : "Save Resume"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <Button variant="outline" onClick={() => setOpen(true)}>Save Resume</Button>
       )}
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Save Resume</DialogTitle>
+            <DialogDescription>
+              Enter a name for your resume to save it to your account.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="col-span-3"
+                placeholder="My Resume"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit" onClick={() => handleSave(true)} disabled={saving}>
+              {saving ? "Saving..." : "Save Resume"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 } 
