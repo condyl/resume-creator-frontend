@@ -3,9 +3,10 @@
 import React from 'react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Trash2, Plus } from "lucide-react"
+import { Trash2, Plus, Eye, EyeOff } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { FormattedInput } from "@/components/ui/formatted-input"
+import { MonthRangePicker } from "@/components/ui/month-range-picker"
 import AIImprovementButton from "@/components/ui/ai-improvement-button"
 import { arrayMove } from '@dnd-kit/sortable'
 
@@ -16,6 +17,9 @@ interface ProjectsProps {
     liveUrl: string
     githubUrl: string
     details: string[]
+    startDate: string
+    endDate: string
+    showDate: boolean
   }[]
   handleChange: (e: React.ChangeEvent<HTMLInputElement>, index: number | null, section: string, field: string) => void
   handleDetailChange: (e: React.ChangeEvent<HTMLTextAreaElement>, index: number, detailIndex: number, section: string) => void
@@ -36,6 +40,25 @@ export default function Projects({
   removeDetail,
   onReorder
 }: ProjectsProps) {
+  const handleDateChange = (index: number, dates: { startDate: string; endDate: string }) => {
+    const e = {
+      target: { value: dates.startDate }
+    } as React.ChangeEvent<HTMLInputElement>
+    handleChange(e, index, 'projects', 'startDate')
+
+    const e2 = {
+      target: { value: dates.endDate }
+    } as React.ChangeEvent<HTMLInputElement>
+    handleChange(e2, index, 'projects', 'endDate')
+  }
+
+  const toggleDate = (index: number) => {
+    const e = {
+      target: { value: String(!projects[index].showDate) }
+    } as React.ChangeEvent<HTMLInputElement>
+    handleChange(e, index, 'projects', 'showDate')
+  }
+
   const renderProjectItem = (project: typeof projects[0], index: number) => (
     <div className="rounded-lg border p-4">
       <div className="flex justify-between items-start gap-4">
@@ -86,6 +109,32 @@ export default function Projects({
                   value={project.githubUrl}
                   onChange={(e) => handleChange(e, index, 'projects', 'githubUrl')}
                 />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Date Range</Label>
+              <div className="flex items-center gap-2 justify-between">
+                <MonthRangePicker
+                  startDate={project.startDate}
+                  endDate={project.endDate}
+                  onChange={(dates) => handleDateChange(index, dates)}
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleDate(index);
+                  }}
+                  className="h-10 w-10 shrink-0"
+                >
+                  {project.showDate ? (
+                    <Eye className="h-4 w-4" />
+                  ) : (
+                    <EyeOff className="h-4 w-4" />
+                  )}
+                </Button>
               </div>
             </div>
 

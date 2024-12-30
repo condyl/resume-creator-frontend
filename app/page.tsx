@@ -85,7 +85,16 @@ const Home: React.FC = () => {
     showCoursework: true
   }]);
   const [workExperience, setWorkExperience] = useState<WorkExperienceType[]>([{ company: '', position: '', location: '', startDate: '', endDate: '', details: [''] }]);
-  const [projects, setProjects] = useState<ProjectType[]>([{ name: '', technologies: '', liveUrl: '', githubUrl: '', details: [''] }]);
+  const [projects, setProjects] = useState<ProjectType[]>([{
+    name: '',
+    technologies: '',
+    liveUrl: '',
+    githubUrl: '',
+    details: [''],
+    startDate: '',
+    endDate: '',
+    showDate: false
+  }]);
   const [skills, setSkills] = useState<SkillsType>({ languages: '', frameworks: '', tools: '' });
   const [resumeUrl, setResumeUrl] = useState('/blank.pdf');
   const [loading, setLoading] = useState(false);
@@ -125,7 +134,7 @@ const Home: React.FC = () => {
         ));
       } else if (section === 'projects') {
         setProjects(prev => prev.map((item, i) => 
-          i === index ? { ...item, [field]: value } : item
+          i === index ? { ...item, [field]: field === 'showDate' ? value === 'true' : value } : item
         ));
       }
     }
@@ -151,18 +160,38 @@ const Home: React.FC = () => {
   };
 
   const addField = (section: string) => {
-    if (section === 'education') setEducation([...education, {
-      school: '',
-      degree: '',
-      program: '',
-      location: '',
-      coursework: '',
-      startDate: '',
-      endDate: '',
-      showCoursework: true
-    }]);
-    if (section === 'workExperience') setWorkExperience([...workExperience, { company: '', position: '', location: '', startDate: '', endDate: '', details: [''] }]);
-    if (section === 'projects') setProjects([...projects, { name: '', technologies: '', liveUrl: '', githubUrl: '', details: [''] }]);
+    if (section === 'education') {
+      setEducation([...education, {
+        school: '',
+        degree: '',
+        program: '',
+        location: '',
+        coursework: '',
+        startDate: '',
+        endDate: '',
+        showCoursework: true
+      }])
+    } else if (section === 'workExperience') {
+      setWorkExperience([...workExperience, {
+        company: '',
+        position: '',
+        location: '',
+        startDate: '',
+        endDate: '',
+        details: ['']
+      }])
+    } else if (section === 'projects') {
+      setProjects([...projects, {
+        name: '',
+        technologies: '',
+        liveUrl: '',
+        githubUrl: '',
+        details: [''],
+        startDate: '',
+        endDate: '',
+        showDate: false
+      }])
+    }
   };
 
   const addDetail = (index: number, section: string) => {
@@ -362,10 +391,15 @@ const Home: React.FC = () => {
             proj.technologies,
             proj.liveUrl,
             proj.githubUrl,
-            proj.details.some(d => d && d.length > 0) ? "filled" : ""
+            proj.details.some(d => d && d.length > 0) ? "filled" : "",
+            ...(proj.showDate ? [
+              proj.startDate,
+              proj.endDate
+            ] : [])
           ];
           const filledFields = fields.filter(field => field && field.length > 0).length;
-          return acc + (filledFields / 5) * 100;
+          const totalFields = fields.length;
+          return acc + (filledFields / totalFields) * 100;
         }, 0);
         return {
           completed: projCompleted / projects.length,

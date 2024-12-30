@@ -33,6 +33,9 @@ export interface ProjectType {
   liveUrl: string;
   githubUrl: string;
   details: string[];
+  startDate: string;
+  endDate: string;
+  showDate: boolean;
 }
 
 export interface SkillsType {

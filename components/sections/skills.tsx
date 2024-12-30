@@ -49,17 +49,17 @@ const skillCategories: SkillCategory[] = [
   {
     name: "Programming Languages",
     field: "languages",
-    placeholder: "e.g., Python, JavaScript, Java..."
+    placeholder: "Add a programming language..."
   },
   {
     name: "Frameworks & Libraries",
     field: "frameworks",
-    placeholder: "e.g., React, Django, Spring..."
+    placeholder: "Add a framework..."
   },
   {
     name: "Tools & Technologies",
     field: "tools",
-    placeholder: "e.g., Git, Docker, AWS..."
+    placeholder: "Add a tool..."
   }
 ]
 
@@ -119,14 +119,14 @@ export default function Skills({ skills, handleChange }: SkillsProps) {
                   </Badge>
                 ))}
               </div>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-[280px_1fr] gap-2">
                 <Popover open={open[category.field]} onOpenChange={(isOpen) => setOpen({ ...open, [category.field]: isOpen })}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       role="combobox"
                       aria-expanded={open[category.field]}
-                      className="justify-between"
+                      className="w-full justify-between whitespace-nowrap"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add {category.name}
@@ -174,8 +174,8 @@ export default function Skills({ skills, handleChange }: SkillsProps) {
                       }
                     }
                   }}
-                  placeholder={`Type a custom ${category.name.toLowerCase()} and press Enter`}
-                  className="flex-1"
+                  placeholder={category.placeholder}
+                  className="w-full"
                 />
               </div>
             </div>

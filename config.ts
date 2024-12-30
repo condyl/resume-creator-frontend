@@ -1,2 +1,2 @@
-
-export const BASE_URL = 'https://connorsresumebuilder.com'; // Change to 'http://localhost:5000' for local testing
+//export const BASE_URL = 'http://localhost:5001';
+export const BASE_URL = 'https://connorsresumebuilder.com';
