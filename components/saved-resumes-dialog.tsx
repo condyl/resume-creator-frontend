@@ -86,7 +86,7 @@ export function SavedResumesDialog({ onLoad }: SavedResumesDialogProps) {
     if (open) {
       loadSavedResumes()
     }
-  }, [open])
+  }, [open, loadSavedResumes])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
