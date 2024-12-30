@@ -74,8 +74,16 @@ const Home: React.FC = () => {
     phone: true,
     website: true,
   });
-  const [showCoursework, setShowCoursework] = useState(true);
-  const [education, setEducation] = useState<EducationType[]>([{ school: '', degree: '', program: '', location: '', coursework: '', startDate: '', endDate: '' }]);
+  const [education, setEducation] = useState<EducationType[]>([{
+    school: '',
+    degree: '',
+    program: '',
+    location: '',
+    coursework: '',
+    startDate: '',
+    endDate: '',
+    showCoursework: true
+  }]);
   const [workExperience, setWorkExperience] = useState<WorkExperienceType[]>([{ company: '', position: '', location: '', startDate: '', endDate: '', details: [''] }]);
   const [projects, setProjects] = useState<ProjectType[]>([{ name: '', technologies: '', liveUrl: '', githubUrl: '', details: [''] }]);
   const [skills, setSkills] = useState<SkillsType>({ languages: '', frameworks: '', tools: '' });
@@ -109,7 +117,7 @@ const Home: React.FC = () => {
     } else {
       if (section === 'education') {
         setEducation(prev => prev.map((item, i) => 
-          i === index ? { ...item, [field]: value } : item
+          i === index ? { ...item, [field]: field === 'showCoursework' ? value === 'true' : value } : item
         ));
       } else if (section === 'workExperience') {
         setWorkExperience(prev => prev.map((item, i) => 
@@ -143,7 +151,16 @@ const Home: React.FC = () => {
   };
 
   const addField = (section: string) => {
-    if (section === 'education') setEducation([...education, { school: '', degree: '', program: '', location: '', coursework: '', startDate: '', endDate: '' }]);
+    if (section === 'education') setEducation([...education, {
+      school: '',
+      degree: '',
+      program: '',
+      location: '',
+      coursework: '',
+      startDate: '',
+      endDate: '',
+      showCoursework: true
+    }]);
     if (section === 'workExperience') setWorkExperience([...workExperience, { company: '', position: '', location: '', startDate: '', endDate: '', details: [''] }]);
     if (section === 'projects') setProjects([...projects, { name: '', technologies: '', liveUrl: '', githubUrl: '', details: [''] }]);
   };
@@ -193,12 +210,14 @@ const Home: React.FC = () => {
 
       const response = await axios.post(`${BASE_URL}/api/generate-resume`, {
         personalInfo,
-        education: formattedEducation,
+        education: formattedEducation.map(edu => ({
+          ...edu,
+          showCoursework: edu.showCoursework
+        })),
         workExperience: formattedWorkExperience,
         projects,
         skills,
-        showIcons,
-        showCoursework
+        showIcons
       }, { responseType: 'blob' });
 
       const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
@@ -244,7 +263,6 @@ const Home: React.FC = () => {
     setProjects(resume.projects);
     setSkills(resume.skills);
     setShowIcons(resume.show_icons);
-    setShowCoursework(resume.show_coursework ?? true);
     setIsDirty(false);
 
     // Automatically generate the resume
@@ -254,7 +272,10 @@ const Home: React.FC = () => {
     try {
       const response = await axios.post(`${BASE_URL}/api/generate-resume`, {
         personalInfo: resume.personal_info,
-        education: resume.education,
+        education: resume.education.map(edu => ({
+          ...edu,
+          showCoursework: edu.showCoursework
+        })),
         workExperience: resume.work_experience,
         projects: resume.projects,
         skills: resume.skills,
@@ -434,8 +455,7 @@ const Home: React.FC = () => {
                       work_experience: workExperience,
                       projects,
                       skills,
-                      show_icons: showIcons,
-                      show_coursework: showCoursework,
+                      show_icons: showIcons
                     }}
                     currentResume={currentResume}
                   />
@@ -473,8 +493,6 @@ const Home: React.FC = () => {
                     handleChange={handleChange} 
                     removeField={removeField} 
                     addField={addField}
-                    showCoursework={showCoursework}
-                    toggleCoursework={() => setShowCoursework(!showCoursework)}
                     onReorder={handleEducationReorder}
                   />
                 </AccordionContent>

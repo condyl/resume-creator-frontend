@@ -17,10 +17,14 @@ export default function Login() {
   }, [user, router])
 
   const handleSignIn = async (provider: 'google' | 'github') => {
-    const { error } = await signInWithProvider(provider)
-    if (error) {
+    try {
+      const { error } = await signInWithProvider(provider)
+      if (error) {
+        console.error('Error signing in:', error)
+        // Handle error (show toast notification, etc.)
+      }
+    } catch (error) {
       console.error('Error signing in:', error)
-      // Handle error (show toast notification, etc.)
     }
   }
 

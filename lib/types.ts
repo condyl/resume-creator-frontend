@@ -15,6 +15,7 @@ export interface EducationType {
   coursework: string;
   startDate: string;
   endDate: string;
+  showCoursework: boolean;
 }
 
 export interface WorkExperienceType {
@@ -58,5 +59,4 @@ export interface SavedResumeType {
     phone: boolean;
     website: boolean;
   };
-  show_coursework: boolean;
 } 

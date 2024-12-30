@@ -162,25 +162,20 @@ export default function Skills({ skills, handleChange }: SkillsProps) {
                   </PopoverContent>
                 </Popover>
                 <Input
-                  value=""
-                  onChange={(e) => {
-                    if (e.target.value.trim()) {
-                      handleAddSkill(category.field, e.target.value.trim())
-                      e.target.value = ''
-                    }
-                  }}
-                  placeholder={`Type a custom ${category.name.toLowerCase()} and press Enter`}
-                  className="flex-1"
+                  value={search[category.field] || ''}
+                  onChange={(e) => setSearch({ ...search, [category.field]: e.target.value })}
                   onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
                       const input = e.currentTarget
                       if (input.value.trim()) {
                         handleAddSkill(category.field, input.value.trim())
-                        input.value = ''
+                        setSearch({ ...search, [category.field]: '' })
                       }
                     }
                   }}
+                  placeholder={`Type a custom ${category.name.toLowerCase()} and press Enter`}
+                  className="flex-1"
                 />
               </div>
             </div>

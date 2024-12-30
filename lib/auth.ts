@@ -4,12 +4,17 @@ import { Provider } from '@supabase/supabase-js'
 export const signInWithProvider = async (provider: 'google' | 'github') => {
   try {
     console.log('Starting OAuth sign-in with provider:', provider)
-    console.log('Redirect URL:', `${window.location.origin}/auth/callback`)
+    
+    const redirectTo = typeof window !== 'undefined' 
+      ? `${window.location.origin}/auth/callback`
+      : 'http://localhost:3000/auth/callback'
+
+    console.log('Redirect URL:', redirectTo)
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo,
         skipBrowserRedirect: false,
         queryParams: {
           access_type: 'offline',

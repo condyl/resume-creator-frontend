@@ -51,12 +51,11 @@ interface EducationProps {
     coursework: string
     startDate: string
     endDate: string
+    showCoursework: boolean
   }[]
   handleChange: (e: React.ChangeEvent<HTMLInputElement>, index: number | null, section: string, field: string) => void
   removeField: (index: number, section: string) => void
   addField: (section: string) => void
-  showCoursework?: boolean
-  toggleCoursework?: () => void
   onReorder?: (newOrder: EducationProps['education']) => void
 }
 
@@ -65,8 +64,6 @@ export default function Education({
   handleChange,
   removeField,
   addField,
-  showCoursework = true,
-  toggleCoursework = () => {},
   onReorder
 }: EducationProps) {
   const [open, setOpen] = useState<{ [key: number]: boolean }>({})
@@ -81,6 +78,13 @@ export default function Education({
       target: { value: dates.endDate }
     } as React.ChangeEvent<HTMLInputElement>
     handleChange(e2, index, 'education', 'endDate')
+  }
+
+  const toggleCoursework = (index: number) => {
+    const e = {
+      target: { value: (!education[index].showCoursework).toString() }
+    } as React.ChangeEvent<HTMLInputElement>
+    handleChange(e, index, 'education', 'showCoursework')
   }
 
   const renderEducationItem = (edu: typeof education[0], index: number) => (
@@ -201,11 +205,11 @@ export default function Education({
                   size="icon"
                   onClick={(e) => {
                     e.preventDefault();
-                    toggleCoursework();
+                    toggleCoursework(index);
                   }}
                   className="h-10 w-10 shrink-0"
                 >
-                  {showCoursework ? (
+                  {edu.showCoursework ? (
                     <Eye className="h-4 w-4" />
                   ) : (
                     <EyeOff className="h-4 w-4" />
