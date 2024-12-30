@@ -33,7 +33,7 @@ export function SavedResumesDialog({ onLoad }: SavedResumesDialogProps) {
   const [loading, setLoading] = React.useState(false)
   const { toast } = useToast()
 
-  const loadSavedResumes = async () => {
+  const loadSavedResumes = React.useCallback(async () => {
     setLoading(true)
     try {
       const { data, error } = await loadResumes()
@@ -51,7 +51,7 @@ export function SavedResumesDialog({ onLoad }: SavedResumesDialogProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [toast])
 
   const handleDelete = async (id: string) => {
     try {
