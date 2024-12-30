@@ -4,7 +4,6 @@ import React from 'react'
 import {
   DndContext,
   closestCenter,
-  KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
@@ -13,15 +12,15 @@ import {
 import {
   arrayMove,
   SortableContext,
-  sortableKeyboardCoordinates,
   verticalListSortingStrategy,
   useSortable
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { GripVertical } from "lucide-react"
 
 interface SortableItemProps {
   id: string
-  children: (dragHandleProps: any) => React.ReactNode
+  children: React.ReactNode
 }
 
 function SortableItem({ id, children }: SortableItemProps) {
@@ -43,8 +42,17 @@ function SortableItem({ id, children }: SortableItemProps) {
   }
 
   return (
-    <div ref={setNodeRef} style={style}>
-      {children({ ...attributes, ...listeners })}
+    <div ref={setNodeRef} style={style} className="relative group">
+      <div 
+        className="absolute left-2 top-4 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-5 w-5 text-muted-foreground" />
+      </div>
+      <div className="pl-8">
+        {children}
+      </div>
     </div>
   )
 }
@@ -52,7 +60,7 @@ function SortableItem({ id, children }: SortableItemProps) {
 interface SortableListProps {
   items: any[]
   onReorder: (newOrder: any[]) => void
-  renderItem: (item: any, index: number, dragHandleProps: any) => React.ReactNode
+  renderItem: (item: any, index: number) => React.ReactNode
   keyExtractor: (item: any) => string
 }
 
@@ -65,11 +73,10 @@ export default function SortableList({
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8
+        distance: 8,
+        delay: 100,
+        tolerance: 5
       }
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates
     })
   )
 
@@ -97,7 +104,7 @@ export default function SortableList({
         <div className="space-y-4">
           {items.map((item, index) => (
             <SortableItem key={keyExtractor(item)} id={keyExtractor(item)}>
-              {(dragHandleProps) => renderItem(item, index, dragHandleProps)}
+              {renderItem(item, index)}
             </SortableItem>
           ))}
         </div>

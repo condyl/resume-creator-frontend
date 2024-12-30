@@ -107,20 +107,39 @@ const Home: React.FC = () => {
     } else if (section === 'skills') {
       setSkills((prev) => ({ ...prev, [field]: value }));
     } else {
-      const updatedSection: (EducationType | WorkExperienceType | ProjectType)[] = [...(section === 'education' ? education : section === 'workExperience' ? workExperience : projects)];
-      (updatedSection[index!] as any)[field] = value;
-      if (section === 'education') setEducation(updatedSection as EducationType[]);
-      if (section === 'workExperience') setWorkExperience(updatedSection as WorkExperienceType[]);
-      if (section === 'projects') setProjects(updatedSection as ProjectType[]);
+      if (section === 'education') {
+        setEducation(prev => prev.map((item, i) => 
+          i === index ? { ...item, [field]: value } : item
+        ));
+      } else if (section === 'workExperience') {
+        setWorkExperience(prev => prev.map((item, i) => 
+          i === index ? { ...item, [field]: value } : item
+        ));
+      } else if (section === 'projects') {
+        setProjects(prev => prev.map((item, i) => 
+          i === index ? { ...item, [field]: value } : item
+        ));
+      }
     }
   };
 
   const handleDetailChange = (e: React.ChangeEvent<HTMLTextAreaElement>, index: number, detailIndex: number, section: string) => {
     const value = e.target.value;
-    const updatedSection: (WorkExperienceType | ProjectType)[] = [...(section === 'workExperience' ? workExperience : projects)];
-    updatedSection[index].details[detailIndex] = value;
-    if (section === 'workExperience') setWorkExperience(updatedSection as WorkExperienceType[]);
-    if (section === 'projects') setProjects(updatedSection as ProjectType[]);
+    if (section === 'workExperience') {
+      setWorkExperience(prev => prev.map((item, i) => 
+        i === index ? {
+          ...item,
+          details: item.details.map((detail, j) => j === detailIndex ? value : detail)
+        } : item
+      ));
+    } else if (section === 'projects') {
+      setProjects(prev => prev.map((item, i) => 
+        i === index ? {
+          ...item,
+          details: item.details.map((detail, j) => j === detailIndex ? value : detail)
+        } : item
+      ));
+    }
   };
 
   const addField = (section: string) => {
