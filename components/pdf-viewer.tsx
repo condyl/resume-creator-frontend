@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
-import { Document, Page } from 'react-pdf';
-import { Download, ZoomIn, ZoomOut, RefreshCw } from 'lucide-react';
-import { Button } from './ui/button'; // Import the Button component
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch"; // Import zoom and pan library
+import { useState } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
+import { Download, Loader2 } from 'lucide-react';
+import { Button } from './ui/button';
+import { cn } from '@/lib/utils';
 
 interface PDFViewerProps {
   url: string;
@@ -11,85 +11,111 @@ interface PDFViewerProps {
 function PDFViewer({ url }: PDFViewerProps) {
   const [numPages, setNumPages] = useState<number>();
   const [pageNumber, setPageNumber] = useState<number>(1);
-  const [scale, setScale] = useState<number>(1);
-  const transformComponentRef = useRef<any>(null);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setScale(0.5); // Set a smaller scale for mobile devices
-      } else {
-        setScale(1); // Default scale for larger screens
-      }
-    };
-
-    handleResize(); // Set initial scale
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
+    setLoading(false);
     setNumPages(numPages);
   }
 
-  const goToPrevPage = () => setPageNumber((prevPageNumber) => Math.max(prevPageNumber - 1, 1));
-  const goToNextPage = () => setPageNumber((prevPageNumber) => Math.min(prevPageNumber + 1, numPages || 1));
+  function onDocumentLoadError(error: Error): void {
+    setLoading(false);
+    setError(error);
+    console.error('Error loading PDF:', error);
+  }
+
   const downloadPDF = () => {
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'document.pdf';
+    link.download = 'resume.pdf';
     link.click();
   };
 
-  const zoomIn = () => setScale((prevScale) => Math.min(prevScale + 0.2, 3));
-  const zoomOut = () => setScale((prevScale) => Math.max(prevScale - 0.2, 0.5));
-  const resetPosition = () => {
-    if (transformComponentRef.current) {
-      transformComponentRef.current.resetTransform();
-    }
-  };
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+        <p className="text-destructive mb-4">Failed to load PDF</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Try Again
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ margin: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <div
-        style={{
-          border: '1px solid #ccc',
-          backgroundColor: 'var(--pdf-background-color)',
-        }}
-      >
-        <TransformWrapper
-          ref={transformComponentRef}
-        >
-          <TransformComponent>
-            <Document file={url} onLoadSuccess={onDocumentLoadSuccess}>
-              <Page pageNumber={pageNumber} scale={scale} renderTextLayer={false} renderAnnotationLayer={false} />
-            </Document>
-          </TransformComponent>
-        </TransformWrapper>
-      </div>
-      {numPages && numPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', width: '100%' }}>
-          <button onClick={goToPrevPage} disabled={pageNumber <= 1}>
-            Previous
-          </button>
-          <p>
-            Page {pageNumber} of {numPages}
-          </p>
-          <button onClick={goToNextPage} disabled={pageNumber >= numPages}>
-            Next
-          </button>
+    <div className="relative flex flex-col h-[calc(100vh-10rem)] bg-muted">
+      {/* PDF Container */}
+      <div className="flex-1 overflow-auto">
+        <div className="min-h-full flex justify-center p-4 pb-16">
+          <Document
+            file={url}
+            onLoadSuccess={onDocumentLoadSuccess}
+            onLoadError={onDocumentLoadError}
+            loading={
+              <div className="flex items-center justify-center min-h-[600px]">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            }
+            error={null}
+            className="max-w-3xl mx-auto"
+          >
+            <Page
+              pageNumber={pageNumber}
+              loading={
+                <div className="flex items-center justify-center min-h-[600px]">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+              }
+              className={cn(
+                "shadow-lg bg-white transition-opacity duration-200",
+                loading && "opacity-0"
+              )}
+              renderAnnotationLayer={false}
+              renderTextLayer={false}
+            />
+          </Document>
         </div>
-      )}
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-        <Button onClick={downloadPDF} variant="default" size="default">
-          <Download />
-        </Button>
-        <Button onClick={resetPosition} variant="default" size="default" style={{ marginLeft: '10px' }}>
-          <RefreshCw />
-        </Button>
+      </div>
+
+      {/* Controls */}
+      <div className="sticky bottom-0 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t">
+        <div className="max-w-3xl mx-auto flex items-center justify-between p-4">
+          <div className="flex items-center gap-4">
+            {numPages && numPages > 1 && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
+                  disabled={pageNumber <= 1}
+                >
+                  Previous
+                </Button>
+                <span className="text-sm">
+                  Page {pageNumber} of {numPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPageNumber((prev) => Math.min(prev + 1, numPages || 1))}
+                  disabled={pageNumber >= (numPages || 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            )}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={downloadPDF}
+            className="ml-auto"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Download
+          </Button>
+        </div>
       </div>
     </div>
   );

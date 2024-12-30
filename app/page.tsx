@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import PersonalInfo from '@/components/sections/personal-info';
 import Education from '@/components/sections/education';
@@ -18,6 +18,16 @@ import { Loader2 } from 'lucide-react';
 import { BASE_URL } from '@/config';
 import PDFViewer from '@/components/pdf-viewer';
 import { pdfjs } from 'react-pdf';
+import { SaveResumeDialog } from '@/components/save-resume-dialog';
+import { SavedResumesDialog } from '@/components/saved-resumes-dialog';
+import { SavedResumeType, EducationType, WorkExperienceType, ProjectType, SkillsType } from '@/lib/types';
+import { useAuth } from '@/lib/AuthContext';
+import { ResumeStatusBar } from "@/components/resume-status-bar"
+import { SectionProgress } from "@/components/section-progress"
+import { supabase } from '@/lib/supabase';
+import { DeleteAccountDialog } from "@/components/delete-account-dialog"
+import { UserCircle } from 'lucide-react'
+import Link from 'next/link'
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -33,37 +43,22 @@ interface PersonalInfoType {
   phone: string;
 }
 
-interface EducationType {
-  school: string;
-  degree: string;
-  location: string;
-  coursework: string;
-}
-
-interface WorkExperienceType {
-  company: string;
-  position: string;
-  location: string;
-  startDate: string;
-  endDate: string;
-  details: string[];
-}
-
-interface ProjectType {
-  title: string;
-  description: string;
-  link: string;
-  technologies: string;
-  details: string[];
-}
-
-interface SkillsType {
-  languages: string;
-  frameworks: string;
-  tools: string;
-}
+type ShowIconsType = {
+  email: boolean;
+  github: boolean;
+  linkedin: boolean;
+  phone: boolean;
+  website: boolean;
+};
 
 const Home: React.FC = () => {
+  const { user } = useAuth();
+
+  // Helper function to safely check if a string is filled
+  const isFieldFilled = (value: string) => {
+    return typeof value === 'string' && value.trim().length > 0;
+  };
+
   const [personalInfo, setPersonalInfo] = useState<PersonalInfoType>({
     name: '',
     email: '',
@@ -72,21 +67,26 @@ const Home: React.FC = () => {
     linkedin: '',
     phone: '',
   });
-  const [showIcons, setShowIcons] = useState({
+  const [showIcons, setShowIcons] = useState<ShowIconsType>({
     email: true,
     github: true,
     linkedin: true,
     phone: true,
+    website: true,
   });
-  const [education, setEducation] = useState<EducationType[]>([{ school: '', degree: '', location: '', coursework: '' }]);
+  const [showCoursework, setShowCoursework] = useState(true);
+  const [education, setEducation] = useState<EducationType[]>([{ school: '', degree: '', program: '', location: '', coursework: '', startDate: '', endDate: '' }]);
   const [workExperience, setWorkExperience] = useState<WorkExperienceType[]>([{ company: '', position: '', location: '', startDate: '', endDate: '', details: [''] }]);
-  const [projects, setProjects] = useState<ProjectType[]>([{ title: '', description: '', link: '', technologies: '', details: [''] }]);
+  const [projects, setProjects] = useState<ProjectType[]>([{ name: '', technologies: '', liveUrl: '', githubUrl: '', details: [''] }]);
   const [skills, setSkills] = useState<SkillsType>({ languages: '', frameworks: '', tools: '' });
-  const [resumeUrl, setResumeUrl] = useState('');
+  const [resumeUrl, setResumeUrl] = useState('/blank.pdf');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
   const [isSlideoutOpen, setIsSlideoutOpen] = useState(false);
+  const [currentResume, setCurrentResume] = useState<SavedResumeType | undefined>(undefined);
+  const [lastSaved, setLastSaved] = useState<Date>()
+  const [isDirty, setIsDirty] = useState(false)
 
   const toggleSlideout = () => {
     setIsSlideoutOpen((prev) => !prev);
@@ -100,6 +100,7 @@ const Home: React.FC = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number | null, section: string, field: string) => {
+    setIsDirty(true)
     const value = e.target.value;
     if (section === 'personalInfo') {
       setPersonalInfo((prev) => ({ ...prev, [field]: value }));
@@ -123,9 +124,9 @@ const Home: React.FC = () => {
   };
 
   const addField = (section: string) => {
-    if (section === 'education') setEducation([...education, { school: '', degree: '', location: '', coursework: '' }]);
+    if (section === 'education') setEducation([...education, { school: '', degree: '', program: '', location: '', coursework: '', startDate: '', endDate: '' }]);
     if (section === 'workExperience') setWorkExperience([...workExperience, { company: '', position: '', location: '', startDate: '', endDate: '', details: [''] }]);
-    if (section === 'projects') setProjects([...projects, { title: '', description: '', link: '', technologies: '', details: [''] }]);
+    if (section === 'projects') setProjects([...projects, { name: '', technologies: '', liveUrl: '', githubUrl: '', details: [''] }]);
   };
 
   const addDetail = (index: number, section: string) => {
@@ -153,11 +154,28 @@ const Home: React.FC = () => {
     setError('');
 
     try {
-      console.log(showIcons);
+      // Format dates for education and work experience
+      const formatDate = (dateStr: string) => {
+        if (!dateStr) return '';
+        if (dateStr === 'Present') return 'Present';
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return '';
+        return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      };
+
+      const formattedEducation = education.map(edu => ({
+        ...edu,
+        dates: `${formatDate(edu.startDate)} - ${formatDate(edu.endDate)}`
+      }));
+      const formattedWorkExperience = workExperience.map(work => ({
+        ...work,
+        dates: `${formatDate(work.startDate)} - ${formatDate(work.endDate)}`
+      }));
+
       const response = await axios.post(`${BASE_URL}/api/generate-resume`, {
         personalInfo,
-        education,
-        workExperience,
+        education: formattedEducation,
+        workExperience: formattedWorkExperience,
         projects,
         skills,
         showIcons
@@ -191,48 +209,329 @@ const Home: React.FC = () => {
     };
   }, [isSlideoutOpen]);
 
+  const handleSaveResume = (savedResume: SavedResumeType) => {
+    setCurrentResume(savedResume)
+    setLastSaved(new Date())
+    setIsDirty(false)
+    console.log('Resume saved:', savedResume)
+  };
+
+  const handleLoadResume = async (resume: SavedResumeType) => {
+    setCurrentResume(resume);
+    setPersonalInfo(resume.personal_info);
+    setEducation(resume.education);
+    setWorkExperience(resume.work_experience);
+    setProjects(resume.projects);
+    setSkills(resume.skills);
+    setShowIcons(resume.show_icons);
+    setShowCoursework(resume.show_coursework ?? true);
+    setIsDirty(false);
+
+    // Automatically generate the resume
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await axios.post(`${BASE_URL}/api/generate-resume`, {
+        personalInfo: resume.personal_info,
+        education: resume.education,
+        workExperience: resume.work_experience,
+        projects: resume.projects,
+        skills: resume.skills,
+        showIcons: resume.show_icons
+      }, { responseType: 'blob' });
+
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      setResumeUrl(url);
+    } catch (err) {
+      setError('Failed to generate resume.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Calculate section completion
+  const calculateProgress = useCallback((section: string) => {
+    switch (section) {
+      case 'personalInfo': {
+        // Only include fields that have visibility buttons if they are visible
+        const fields = [
+          personalInfo.name, // Always required
+          showIcons.email ? personalInfo.email : null,
+          showIcons.github ? personalInfo.github : null,
+          showIcons.website ? personalInfo.website : null,
+          showIcons.linkedin ? personalInfo.linkedin : null,
+          showIcons.phone ? personalInfo.phone : null
+        ].filter(field => field !== null);
+
+        const filledFields = fields.filter(field => field && field.length > 0).length;
+        const totalFields = fields.length;
+
+        return {
+          completed: (filledFields / totalFields) * 100,
+          total: 100
+        };
+      }
+
+      case 'education': {
+        if (education.length === 0) return { completed: 0, total: 1 };
+        const eduCompleted = education.reduce((acc, edu) => {
+          const fields = [
+            edu.school,
+            edu.degree,
+            edu.location,
+            edu.startDate,
+            edu.endDate
+          ];
+          const filledFields = fields.filter(field => field && field.length > 0).length;
+          return acc + (filledFields / fields.length) * 100;
+        }, 0);
+        return {
+          completed: eduCompleted / education.length,
+          total: 100
+        };
+      }
+
+      case 'workExperience': {
+        if (workExperience.length === 0) return { completed: 0, total: 1 };
+        const workCompleted = workExperience.reduce((acc, work) => {
+          const fields = [
+            work.company,
+            work.position,
+            work.location,
+            work.startDate,
+            work.endDate,
+            ...(work.details || [])
+          ];
+          const filledFields = fields.filter(field => field && field.length > 0).length;
+          return acc + (filledFields / Math.max(fields.length, 1)) * 100;
+        }, 0);
+        return {
+          completed: workCompleted / workExperience.length,
+          total: 100
+        };
+      }
+
+      case 'projects': {
+        if (projects.length === 0) return { completed: 0, total: 1 };
+        const projCompleted = projects.reduce((acc, proj) => {
+          const fields = [
+            proj.name,
+            proj.technologies,
+            proj.liveUrl,
+            proj.githubUrl,
+            proj.details.some(d => d && d.length > 0) ? "filled" : ""
+          ];
+          const filledFields = fields.filter(field => field && field.length > 0).length;
+          return acc + (filledFields / 5) * 100;
+        }, 0);
+        return {
+          completed: projCompleted / projects.length,
+          total: 100
+        };
+      }
+
+      case 'skills': {
+        const fields = [
+          skills.languages,
+          skills.frameworks,
+          skills.tools
+        ];
+        const filledFields = fields.filter(field => field && field.length > 0).length;
+        return {
+          completed: (filledFields / fields.length) * 100,
+          total: 100
+        };
+      }
+
+      default:
+        return { completed: 0, total: 1 };
+    }
+  }, [personalInfo, education, workExperience, projects, skills, showIcons]);
+
+  // Add useEffect to load most recent resume
+  React.useEffect(() => {
+    const loadMostRecentResume = async () => {
+      if (!user) return;
+      
+      try {
+        const { data: resumes, error } = await supabase
+          .from('resumes')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('updated_at', { ascending: false })
+          .limit(1);
+
+        if (error) throw error;
+        
+        if (resumes && resumes.length > 0) {
+          const mostRecent = resumes[0];
+          handleLoadResume(mostRecent);
+        }
+      } catch (err) {
+        console.error('Error loading most recent resume:', err);
+      }
+    };
+
+    loadMostRecentResume();
+  }, [user]);
+
+  const handleEducationReorder = (newOrder: EducationType[]) => {
+    setEducation(newOrder);
+    setIsDirty(true);
+  };
+
+  const handleWorkExperienceReorder = (newOrder: WorkExperienceType[]) => {
+    setWorkExperience(newOrder);
+    setIsDirty(true);
+  };
+
+  const handleProjectsReorder = (newOrder: ProjectType[]) => {
+    setProjects(newOrder);
+    setIsDirty(true);
+  };
+
   return (
     <div className="container mx-auto p-4 flex flex-col md:flex-row" ref={containerRef}>
       <div className="pr-4 w-full md:w-1/2">
-        <form onSubmit={(e) => e.preventDefault()} className="space-y-4 w-full md:w-auto">
-            <Accordion type="single" collapsible>
-            <AccordionItem value="personal-info">
-              <AccordionTrigger>Personal Information</AccordionTrigger>
-              <AccordionContent>
-              <PersonalInfo personalInfo={personalInfo} showIcons={showIcons} toggleIcon={toggleIcon} handleChange={handleChange} />
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="education">
-              <AccordionTrigger>Education</AccordionTrigger>
-              <AccordionContent>
-              <Education education={education} handleChange={handleChange} removeField={removeField} addField={addField} />
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="work-experience">
-              <AccordionTrigger>Work Experience</AccordionTrigger>
-              <AccordionContent>
-              <WorkExperience workExperience={workExperience} handleChange={handleChange} handleDetailChange={handleDetailChange} removeField={removeField} addField={addField} addDetail={addDetail} removeDetail={removeDetail} />
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="projects">
-              <AccordionTrigger>Projects</AccordionTrigger>
-              <AccordionContent>
-              <Projects projects={projects} handleChange={handleChange} handleDetailChange={handleDetailChange} removeField={removeField} addField={addField} addDetail={addDetail} removeDetail={removeDetail} />
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="skills">
-              <AccordionTrigger>Skills</AccordionTrigger>
-              <AccordionContent>
-              <Skills skills={skills} handleChange={handleChange} />
-              </AccordionContent>
-            </AccordionItem>
+        <div className="rounded-lg border bg-card">
+          <ResumeStatusBar
+            currentResume={currentResume}
+            lastSaved={lastSaved}
+            isDirty={isDirty}
+          />
+          <form onSubmit={(e) => e.preventDefault()} className="space-y-4 p-4">
+            <div className="flex space-x-2 mb-4">
+              {user && (
+                <>
+                  <SaveResumeDialog
+                    onSave={handleSaveResume}
+                    resumeData={{
+                      name: currentResume?.name || '',
+                      personal_info: personalInfo,
+                      education,
+                      work_experience: workExperience,
+                      projects,
+                      skills,
+                      show_icons: showIcons,
+                      show_coursework: showCoursework,
+                    }}
+                    currentResume={currentResume}
+                  />
+                  <SavedResumesDialog onLoad={handleLoadResume} />
+                </>
+              )}
+            </div>
+            <Accordion type="single" collapsible className="space-y-4">
+              <AccordionItem value="personal-info" className="border rounded-lg">
+                <AccordionTrigger className="px-4 [&[data-state=open]>div]:mb-2">
+                  <div className="flex flex-col w-full">
+                    <div className="flex items-center justify-between w-full">
+                      <span>Personal Information</span>
+                      <SectionProgress {...calculateProgress('personalInfo')} className="w-32" />
+                    </div>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <PersonalInfo personalInfo={personalInfo} showIcons={showIcons} toggleIcon={toggleIcon} handleChange={handleChange} />
+                </AccordionContent>
+              </AccordionItem>
+              
+              <AccordionItem value="education" className="border rounded-lg">
+                <AccordionTrigger className="px-4 [&[data-state=open]>div]:mb-2">
+                  <div className="flex flex-col w-full">
+                    <div className="flex items-center justify-between w-full">
+                      <span>Education</span>
+                      <SectionProgress {...calculateProgress('education')} className="w-32" />
+                    </div>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <Education 
+                    education={education} 
+                    handleChange={handleChange} 
+                    removeField={removeField} 
+                    addField={addField}
+                    showCoursework={showCoursework}
+                    toggleCoursework={() => setShowCoursework(!showCoursework)}
+                    onReorder={handleEducationReorder}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="work-experience" className="border rounded-lg">
+                <AccordionTrigger className="px-4 [&[data-state=open]>div]:mb-2">
+                  <div className="flex flex-col w-full">
+                    <div className="flex items-center justify-between w-full">
+                      <span>Work Experience</span>
+                      <SectionProgress {...calculateProgress('workExperience')} className="w-32" />
+                    </div>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <WorkExperience 
+                    workExperience={workExperience} 
+                    handleChange={handleChange} 
+                    handleDetailChange={handleDetailChange} 
+                    removeField={removeField} 
+                    addField={addField} 
+                    addDetail={addDetail} 
+                    removeDetail={removeDetail}
+                    onReorder={handleWorkExperienceReorder}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="projects" className="border rounded-lg">
+                <AccordionTrigger className="px-4 [&[data-state=open]>div]:mb-2">
+                  <div className="flex flex-col w-full">
+                    <div className="flex items-center justify-between w-full">
+                      <span>Projects</span>
+                      <SectionProgress {...calculateProgress('projects')} className="w-32" />
+                    </div>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <Projects 
+                    projects={projects} 
+                    handleChange={handleChange} 
+                    handleDetailChange={handleDetailChange} 
+                    removeField={removeField} 
+                    addField={addField} 
+                    addDetail={addDetail} 
+                    removeDetail={removeDetail}
+                    onReorder={handleProjectsReorder}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="skills" className="border rounded-lg">
+                <AccordionTrigger className="px-4 [&[data-state=open]>div]:mb-2">
+                  <div className="flex flex-col w-full">
+                    <div className="flex items-center justify-between w-full">
+                      <span>Skills</span>
+                      <SectionProgress {...calculateProgress('skills')} className="w-32" />
+                    </div>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <Skills skills={skills} handleChange={handleChange} />
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
-            <Button onClick={handleSubmit} disabled={loading} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded w-full md:w-auto">
-            {loading && <Loader2 className="animate-spin w-5 h-5 mr-2" />}
-            Generate Resume
+
+            <Button 
+              onClick={handleSubmit} 
+              disabled={loading} 
+              className="w-full"
+            >
+              {loading && <Loader2 className="animate-spin w-5 h-5 mr-2" />}
+              Generate Resume
             </Button>
-        </form>
-        {error && <p className="text-red-500">{error}</p>}
+          </form>
+        </div>
+        {error && <p className="text-red-500 mt-4">{error}</p>}
       </div>
       {resumeUrl && (
         <button
@@ -242,12 +541,8 @@ const Home: React.FC = () => {
           View Resume
         </button>
       )}
-      <div
-        className="bg-gray-300 fixed top-14 left-1/2 hidden md:block"
-        style={{ width: '2px', zIndex: 10, height: 'calc(100vh - 3.5rem)' }}
-      />
       <div className="pl-4 w-full md:w-1/2 ml-0.5 hidden md:block">
-        <div className="fixed top-10 right-0 h-full overflow-y-auto" style={{ width: 'calc(50% - 2px)', maxWidth: '100vw' }}>
+        <div className="fixed top-10 right-0 h-[calc(100vh-10rem)] overflow-y-auto z-0" style={{ width: 'calc(50% - 2px)', maxWidth: '100vw' }}>
           {resumeUrl && (
             <div className="mt-4 w-full">
               <PDFViewer url={resumeUrl} />

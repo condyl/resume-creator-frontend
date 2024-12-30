@@ -1,69 +1,160 @@
-import React from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button'; 
-import { Eye, EyeOff } from 'lucide-react';
+'use client'
 
-type IconFields = 'email' | 'github' | 'linkedin' | 'phone';
+import React from 'react'
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Eye, EyeOff, User, Mail, Phone, Globe, Github, Linkedin } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
 
 interface PersonalInfoProps {
   personalInfo: {
-    name: string;
-    email: string;
-    github: string;
-    linkedin: string;
-    phone: string;
-  };
-  showIcons: Record<IconFields, boolean>;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>, index: number | null, section: string, field: string) => void;
-  toggleIcon: (field: IconFields) => void;
+    name: string
+    email: string
+    github: string
+    website: string
+    linkedin: string
+    phone: string
+  }
+  showIcons: {
+    email: boolean
+    github: boolean
+    linkedin: boolean
+    phone: boolean
+    website: boolean
+  }
+  toggleIcon: (field: 'email' | 'github' | 'linkedin' | 'phone' | 'website') => void
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>, index: number | null, section: string, field: string) => void
 }
 
-const PersonalInfo: React.FC<PersonalInfoProps> = ({ personalInfo, showIcons, toggleIcon, handleChange }) => {
-
+export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, handleChange }: PersonalInfoProps) {
   return (
-    <div>
-      <div className="pb-2 flex items-center">
-        <div className="w-full p-1">
-          <Input type="text" name="name" placeholder="Name" value={personalInfo.name} onChange={(e) => handleChange(e, null, 'personalInfo', 'name')} required />
+    <div className="space-y-4">
+      <div className="grid gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="name" className="font-medium">
+            Name <span className="text-destructive">*</span>
+          </Label>
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="name"
+                placeholder="Full Name"
+                value={personalInfo.name}
+                onChange={(e) => handleChange(e, null, 'personalInfo', 'name')}
+                className="pl-9"
+                required
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="email" className="font-medium">
+            Email <span className="text-destructive">*</span>
+          </Label>
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="Email Address"
+                value={personalInfo.email}
+                onChange={(e) => handleChange(e, null, 'personalInfo', 'email')}
+                className={cn("pl-9", !showIcons.email && "text-muted-foreground")}
+                required
+              />
+            </div>
+            <Button onClick={() => toggleIcon('email')} size="icon" variant="outline">
+              {showIcons.email ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+            </Button>
+          </div>
         </div>
       </div>
-        <div className="pb-2 flex items-center">
-          <div className="w-full p-1">
-            <Input type="email" name="email" placeholder="Email" value={personalInfo.email} onChange={(e) => handleChange(e, null, 'personalInfo', 'email')} />
-          </div>
-          <Button onClick={() => toggleIcon('email')} className="ml-2">
-            {showIcons.email ? <Eye /> : <EyeOff />}
-          </Button>
-        </div>
-        <div className="pb-2 flex items-center">
-          <div className="w-full p-1 relative">
-            <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none bg-gray-100 dark:bg-gray-700 rounded-md px-1">github.com/</span>
-            <Input type="text" name="github" placeholder="username" value={personalInfo.github} onChange={(e) => handleChange(e, null, 'personalInfo', 'github')} className="pl-28" />
-          </div>
-          <Button onClick={() => toggleIcon('github')} className="ml-2">
-            {showIcons.github ? <Eye /> : <EyeOff />}
-          </Button>
-        </div>
-        <div className="pb-2 flex items-center">
-          <div className="w-full p-1 relative">
-            <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none bg-gray-100 dark:bg-gray-700 rounded-md px-1">linkedin.com/in/</span>
-            <Input type="text" name="linkedin" placeholder="username" value={personalInfo.linkedin} onChange={(e) => handleChange(e, null, 'personalInfo', 'linkedin')} className="pl-32" />
-            <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none bg-gray-100 dark:bg-gray-700 rounded-md px-1">/</span>
-          </div>
-          <Button onClick={() => toggleIcon('linkedin')} className="ml-2">
-            {showIcons.linkedin ? <Eye /> : <EyeOff />}
-          </Button>
-        </div>
-        <div className="pb-2 flex items-center">
-          <div className="w-full p-1">
-            <Input type="text" name="phone" placeholder="Phone" value={personalInfo.phone} onChange={(e) => handleChange(e, null, 'personalInfo', 'phone')} />
-          </div>
-          <Button onClick={() => toggleIcon('phone')} className="ml-2">
-            {showIcons.phone ? <Eye /> : <EyeOff />}
-          </Button>
-        </div>
-    </div>
-  );
-};
 
-export default PersonalInfo;
+      <div className="space-y-4">
+        <h3 className="text-sm font-medium text-muted-foreground">Social Links & Contact</h3>
+        <div className="grid gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="github">GitHub</Label>
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Github className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="github"
+                  placeholder="GitHub Profile"
+                  value={personalInfo.github}
+                  onChange={(e) => handleChange(e, null, 'personalInfo', 'github')}
+                  className={cn("pl-9", !showIcons.github && "text-muted-foreground")}
+                />
+              </div>
+              <Button onClick={() => toggleIcon('github')} size="icon" variant="outline">
+                {showIcons.github ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="linkedin">LinkedIn</Label>
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Linkedin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="linkedin"
+                  placeholder="LinkedIn Profile"
+                  value={personalInfo.linkedin}
+                  onChange={(e) => handleChange(e, null, 'personalInfo', 'linkedin')}
+                  className={cn("pl-9", !showIcons.linkedin && "text-muted-foreground")}
+                />
+              </div>
+              <Button onClick={() => toggleIcon('linkedin')} size="icon" variant="outline">
+                {showIcons.linkedin ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="website">Personal Website</Label>
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Globe className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="website"
+                  placeholder="Personal Website"
+                  value={personalInfo.website}
+                  onChange={(e) => handleChange(e, null, 'personalInfo', 'website')}
+                  className={cn("pl-9", !showIcons.website && "text-muted-foreground")}
+                />
+              </div>
+              <Button onClick={() => toggleIcon('website')} size="icon" variant="outline">
+                {showIcons.website ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone</Label>
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="Phone Number"
+                  value={personalInfo.phone}
+                  onChange={(e) => handleChange(e, null, 'personalInfo', 'phone')}
+                  className={cn("pl-9", !showIcons.phone && "text-muted-foreground")}
+                />
+              </div>
+              <Button onClick={() => toggleIcon('phone')} size="icon" variant="outline">
+                {showIcons.phone ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

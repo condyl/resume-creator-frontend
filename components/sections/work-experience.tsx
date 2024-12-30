@@ -1,147 +1,180 @@
-import React, { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import MonthPickerPopover from '../month-picker-popover';
-import { format } from 'date-fns';
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { X, Plus, Brain } from 'lucide-react';
-import axios from 'axios';
-import AIImprovementButton from '@/components/ui/ai-improvement-button';
-import { BASE_URL } from '@/config';
+'use client'
+
+import React from 'react'
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Trash2, Plus, GripVertical } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { MonthRangePicker } from "@/components/ui/month-range-picker"
+import { FormattedInput } from "@/components/ui/formatted-input"
+import AIImprovementButton from "@/components/ui/ai-improvement-button"
+import SortableList from "@/components/ui/sortable-list"
 
 interface WorkExperienceProps {
   workExperience: {
-    company: string;
-    position: string;
-    startDate: string;
-    endDate: string;
-    location: string;
-    details: string[];
-  }[];
-  handleChange: (event: React.ChangeEvent<HTMLInputElement>, index: number, section: string, field: string) => void;
-  handleDetailChange: (event: React.ChangeEvent<HTMLTextAreaElement>, index: number, detailIndex: number, section: string) => void;
-  removeField: (index: number, section: string) => void;
-  addField: (section: string) => void;
-  addDetail: (index: number, section: string) => void;
-  removeDetail: (index: number, detailIndex: number, section: string) => void;
+    company: string
+    position: string
+    location: string
+    startDate: string
+    endDate: string
+    details: string[]
+  }[]
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>, index: number | null, section: string, field: string) => void
+  handleDetailChange: (e: React.ChangeEvent<HTMLTextAreaElement>, index: number, detailIndex: number, section: string) => void
+  removeField: (index: number, section: string) => void
+  addField: (section: string) => void
+  addDetail: (index: number, section: string) => void
+  removeDetail: (index: number, detailIndex: number, section: string) => void
+  onReorder?: (newOrder: WorkExperienceProps['workExperience']) => void
 }
 
-const WorkExperience: React.FC<WorkExperienceProps> = ({ workExperience, handleChange, handleDetailChange, removeField, addField, addDetail, removeDetail }) => {
-  const [dates, setDates] = useState<{ startDate: string, endDate: string }[]>(workExperience.map(() => ({ startDate: '', endDate: '' })));
+export default function WorkExperience({
+  workExperience,
+  handleChange,
+  handleDetailChange,
+  removeField,
+  addField,
+  addDetail,
+  removeDetail,
+  onReorder
+}: WorkExperienceProps) {
+  const handleDateChange = (index: number, dates: { startDate: string; endDate: string }) => {
+    const e = {
+      target: { value: dates.startDate }
+    } as React.ChangeEvent<HTMLInputElement>
+    handleChange(e, index, 'workExperience', 'startDate')
 
-  const handleDateChange = (date: Date | "Present", index: number, field: string, formatDate: boolean = false) => {
-    const value = date === "Present" ? "Present" : date.toISOString();
-    const newDates = [...dates];
-    newDates[index] = { ...newDates[index], [field]: value };
-    setDates(newDates);
+    const e2 = {
+      target: { value: dates.endDate }
+    } as React.ChangeEvent<HTMLInputElement>
+    handleChange(e2, index, 'workExperience', 'endDate')
+  }
 
-    if (formatDate) {
-      const formattedStartDate = newDates[index].startDate === "Present" ? "Present" : format(new Date(newDates[index].startDate), "MMM yyyy");
-      const formattedEndDate = newDates[index].endDate === "Present" ? "Present" : format(new Date(newDates[index].endDate), "MMM yyyy");
-      const combinedDates = `${formattedStartDate} - ${formattedEndDate}`;
-  
-      const event = {
-        target: {
-          value: combinedDates
-        }
-      } as React.ChangeEvent<HTMLInputElement>;
-      handleChange(event, index, 'workExperience', 'dates');
-    }
-  };
+  const renderWorkExperienceItem = (work: typeof workExperience[0], index: number, dragHandleProps?: any) => (
+    <div className="rounded-lg border p-4">
+      <div className="flex justify-between items-start">
+        <div className="space-y-4 flex-1">
+          <div className="flex items-center gap-2">
+            <div {...dragHandleProps}>
+              <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
+            </div>
+            <div className="grid gap-4 flex-1">
+              <div className="space-y-2">
+                <Label htmlFor={`company-${index}`}>Company</Label>
+                <Input
+                  id={`company-${index}`}
+                  placeholder="Company Name"
+                  value={work.company}
+                  onChange={(e) => handleChange(e, index, 'workExperience', 'company')}
+                />
+              </div>
 
-  const handleImproveText = async (text: string, index: number, detailIndex: number) => {
-    if (!text) {
-      console.error('No text provided');
-      return;
-    }
-  
-    try {
-      const response = await axios.post(`${BASE_URL}/api/improve-text`, { text }, { headers: { 'Content-Type': 'application/json' } });
-      const improvedText = response.data.improvedText;
-      const event = {
-        target: {
-          value: improvedText
-        }
-      } as React.ChangeEvent<HTMLTextAreaElement>;
-      handleDetailChange(event, index, detailIndex, 'workExperience');
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        console.error('Error improving text:', error.response.data);
-      } else {
-        console.error('Error improving text:', error);
-      }
-    }
-  };
+              <div className="space-y-2">
+                <Label htmlFor={`position-${index}`}>Position</Label>
+                <Input
+                  id={`position-${index}`}
+                  placeholder="Job Title"
+                  value={work.position}
+                  onChange={(e) => handleChange(e, index, 'workExperience', 'position')}
+                />
+              </div>
 
-  return (
-    <div>
-      {workExperience.map((work, index) => (
-        <div key={index}>
-          <div className="pb-2 flex items-center">
-            <div className="w-full p-1 flex items-center">
-              <Input type="text" placeholder="Company" value={work.company} onChange={(e) => handleChange(e, index, 'workExperience', 'company')} />
-            </div>
-          </div>
-          <div className="pb-2 flex items-center">
-            <div className="w-full p-1 flex items-center">
-              <Input type="text" placeholder="Position" value={work.position} onChange={(e) => handleChange(e, index, 'workExperience', 'position')} />
-            </div>
-          </div>
-          <div className="pb-2 flex items-center">
-            <div className="w-full p-1 flex items-center">
-              <MonthPickerPopover placeholderText='Start Date' onDateChange={(date) => handleDateChange(date, index, 'startDate')} />
-              <div className="mx-1"></div>
-              <MonthPickerPopover placeholderText='End Date' showPresent={true} onDateChange={(date) => handleDateChange(date, index, 'endDate', true)} />
-            </div>
-          </div>
-          <div className="pb-2 flex items-center">
-            <div className="w-full p-1 flex items-center">
-              <Input type="text" placeholder="Location" value={work.location} onChange={(e) => handleChange(e, index, 'workExperience', 'location')} />
-            </div>
-          </div>
-          <div className="pb-2 flex items-center">
-            <div className="w-full p-1 flex items-center">
-              <h3 className="text-md font-semibold">Details</h3>
-            </div>
-          </div>
-          {work.details.map((detail, detailIndex) => (
-            <div key={detailIndex} className="pb-2 flex items-center relative">
-              <div className="w-full p-1 relative flex items-center">
-                <div className="relative w-full">
-                  <Textarea placeholder="Detail" value={detail} onChange={(e) => handleDetailChange(e, index, detailIndex, 'workExperience')} className="pr-10" />
-                  <AIImprovementButton text={detail} onTextImproved={(improvedText) => {
-                    const event = {
-                      target: {
-                        value: improvedText
-                      }
-                    } as React.ChangeEvent<HTMLTextAreaElement>;
-                    handleDetailChange(event, index, detailIndex, 'workExperience');
-                  }} />
+              <div className="space-y-2">
+                <Label htmlFor={`location-${index}`}>Location</Label>
+                <Input
+                  id={`location-${index}`}
+                  placeholder="Location"
+                  value={work.location}
+                  onChange={(e) => handleChange(e, index, 'workExperience', 'location')}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Date Range</Label>
+                <MonthRangePicker
+                  startDate={work.startDate}
+                  endDate={work.endDate}
+                  onChange={(dates) => handleDateChange(index, dates)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Details</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => addDetail(index, 'workExperience')}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Detail
+                  </Button>
                 </div>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button type="button" variant={"destructive"} className="ml-2" onClick={() => removeDetail(index, detailIndex, 'workExperience')}><X /></Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Remove Detail</p>
-                  </TooltipContent>
-                </Tooltip>
+                <div className="space-y-2">
+                  {work.details.map((detail, detailIndex) => (
+                    <div key={detailIndex} className="grid grid-cols-[1fr_auto_auto] gap-2 items-start">
+                      <FormattedInput
+                        value={detail}
+                        onChange={(value) =>
+                          handleDetailChange(
+                            { target: { value } } as React.ChangeEvent<HTMLTextAreaElement>,
+                            index,
+                            detailIndex,
+                            'workExperience'
+                          )
+                        }
+                        placeholder="Add work detail..."
+                      />
+                      <AIImprovementButton
+                        text={detail}
+                        onTextImproved={(value) =>
+                          handleDetailChange(
+                            { target: { value } } as React.ChangeEvent<HTMLTextAreaElement>,
+                            index,
+                            detailIndex,
+                            'workExperience'
+                          )
+                        }
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => removeDetail(index, detailIndex, 'workExperience')}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          ))}
-            <div className="pb-2 flex items-center">
-            <Button type="button" onClick={() => addDetail(index, 'workExperience')}><Plus /> Add Detail</Button>
-            </div>
-            <div className="pb-2 flex items-center">
-            <Button type="button" variant={"destructive"} onClick={() => removeField(index, 'workExperience')}><X /> Remove Work Experience</Button>
-            </div>
-          <hr className="my-4" />
+          </div>
         </div>
-      ))}
-      <Button type="button" onClick={() => addField('workExperience')}><Plus /> Add Work Experience</Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="ml-2"
+          onClick={() => removeField(index, 'workExperience')}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
-  );
-};
+  )
 
-export default WorkExperience;
+  return (
+    <div className="space-y-4">
+      <SortableList
+        items={workExperience}
+        onReorder={onReorder || (() => {})}
+        renderItem={renderWorkExperienceItem}
+        keyExtractor={(item) => `${item.company}-${item.position}-${item.startDate}`}
+      />
+      <Button onClick={() => addField('workExperience')} variant="outline" className="w-full">
+        Add Work Experience
+      </Button>
+    </div>
+  )
+}

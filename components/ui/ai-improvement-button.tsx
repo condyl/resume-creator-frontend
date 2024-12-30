@@ -1,6 +1,8 @@
+'use client'
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Brain, Loader2, AlertTriangle  } from 'lucide-react';
+import { Brain, Loader2, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
@@ -9,11 +11,10 @@ import { BASE_URL } from '@/config';
 interface AIImprovementButtonProps {
   text: string;
   onTextImproved: (improvedText: string) => void;
+  className?: string;
 }
 
-// const BASE_URL = 'https://connorsresumebuilder.com'; // Change to 'http://localhost:5000' for local testing
-
-const AIImprovementButton: React.FC<AIImprovementButtonProps> = ({ text, onTextImproved }) => {
+const AIImprovementButton: React.FC<AIImprovementButtonProps> = ({ text, onTextImproved, className }) => {
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,24 +60,39 @@ const AIImprovementButton: React.FC<AIImprovementButtonProps> = ({ text, onTextI
         <Popover open={showError} onOpenChange={setShowError}>
           <PopoverTrigger asChild>
             <TooltipTrigger asChild>
-              <Button type="button" className="absolute right-2 top-1/2 transform -translate-y-1/2" variant={"ghost"} onClick={handleImproveText} disabled={loading}>
-                {loading ? <Loader2 className="animate-spin w-5 h-5" /> : <Brain size={16} />}
+              <Button 
+                type="button" 
+                variant="ghost" 
+                size="icon"
+                className={className}
+                onClick={handleImproveText} 
+                disabled={loading}
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
               </Button>
             </TooltipTrigger>
           </PopoverTrigger>
-          <PopoverContent className="flex items-center space-x-2">
-            <AlertTriangle className="text-yellow-500" /><p>{error}</p>
+          <PopoverContent className="flex items-center space-x-2 p-4">
+            <AlertTriangle className="h-4 w-4 text-yellow-500" />
+            <p className="text-sm">{error}</p>
           </PopoverContent>
         </Popover>
       ) : (
         <TooltipTrigger asChild>
-          <Button type="button" className="absolute right-2 top-1/2 transform -translate-y-1/2" variant={"ghost"} onClick={handleImproveText} disabled={loading}>
-            {loading ? <Loader2 className="animate-spin w-5 h-5" /> : <Brain size={16} />}
+          <Button 
+            type="button" 
+            variant="ghost" 
+            size="icon"
+            className={className}
+            onClick={handleImproveText} 
+            disabled={loading}
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
           </Button>
         </TooltipTrigger>
       )}
       <TooltipContent>
-        <p>Improve this text using AI</p>
+        <p className="text-sm">Improve this text using AI</p>
       </TooltipContent>
     </Tooltip>
   );

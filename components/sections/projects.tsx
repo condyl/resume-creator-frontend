@@ -1,92 +1,175 @@
-import React from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { X, Plus, HelpCircle } from 'lucide-react';
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import AIImprovementButton from '@/components/ui/ai-improvement-button';
+'use client'
+
+import React from 'react'
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Trash2, Plus, GripVertical } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { FormattedInput } from "@/components/ui/formatted-input"
+import AIImprovementButton from "@/components/ui/ai-improvement-button"
+import SortableList from "@/components/ui/sortable-list"
 
 interface ProjectsProps {
-  projects: Array<{
-    title: string;
-    link: string;
-    technologies: string;
-    details: string[];
-  }>;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>, index: number, section: string, field: string) => void;
-  handleDetailChange: (e: React.ChangeEvent<HTMLTextAreaElement>, index: number, detailIndex: number, section: string) => void;
-  removeField: (index: number, section: string) => void;
-  addField: (section: string) => void;
-  addDetail: (index: number, section: string) => void;
-  removeDetail: (index: number, detailIndex: number, section: string) => void;
+  projects: {
+    name: string
+    technologies: string
+    liveUrl: string
+    githubUrl: string
+    details: string[]
+  }[]
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>, index: number | null, section: string, field: string) => void
+  handleDetailChange: (e: React.ChangeEvent<HTMLTextAreaElement>, index: number, detailIndex: number, section: string) => void
+  removeField: (index: number, section: string) => void
+  addField: (section: string) => void
+  addDetail: (index: number, section: string) => void
+  removeDetail: (index: number, detailIndex: number, section: string) => void
+  onReorder?: (newOrder: ProjectsProps['projects']) => void
 }
 
-const Projects: React.FC<ProjectsProps> = ({ projects, handleChange, handleDetailChange, removeField, addField, addDetail, removeDetail }) => (
-  <div>
-    {projects.map((project, index) => (
-      <div key={index}>
-        <div className="pb-2 flex items-center">
-          <div className="w-full p-1 flex items-center">
-            <Input type="text" placeholder="Title" value={project.title} onChange={(e) => handleChange(e, index, 'projects', 'title')} />
-          </div>
-        </div>
-        <div className="pb-2 flex items-center">
-          <div className="w-full p-1 flex items-center">
-            <Input type="text" placeholder="Link" value={project.link} onChange={(e) => handleChange(e, index, 'projects', 'link')} />
-            <Tooltip>
-              <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
-              <TooltipContent>
-                <p>Hyperlinked in project title</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
-        <div className="pb-2 flex items-center">
-          <div className="w-full p-1 flex items-center">
-            <Input type="text" placeholder="Technologies" value={project.technologies} onChange={(e) => handleChange(e, index, 'projects', 'technologies')} />
-          </div>
-        </div>
-        <div className="pb-2 flex items-center">
-          <div className="w-full p-1 flex items-center">
-            <h3 className="text-md font-semibold">Details</h3>
-          </div>
-        </div>
-        {project.details.map((detail, detailIndex) => (
-          <div key={detailIndex} className="pb-2 flex items-center">
-            <div className="w-full p-1 pl-1 flex items-center">
-              <div className="relative w-full">
-                <Textarea placeholder="Detail" value={detail} onChange={(e) => handleDetailChange(e, index, detailIndex, 'projects')} className="pr-10" />
-                <AIImprovementButton text={detail} onTextImproved={(improvedText) => {
-                  const event = {
-                    target: {
-                      value: improvedText
-                    }
-                  } as React.ChangeEvent<HTMLTextAreaElement>;
-                  handleDetailChange(event, index, detailIndex, 'projects');
-                }} />
+export default function Projects({
+  projects,
+  handleChange,
+  handleDetailChange,
+  removeField,
+  addField,
+  addDetail,
+  removeDetail,
+  onReorder
+}: ProjectsProps) {
+  const renderProjectItem = (project: typeof projects[0], index: number, dragHandleProps?: any) => (
+    <div className="rounded-lg border p-4">
+      <div className="flex justify-between items-start">
+        <div className="space-y-4 flex-1">
+          <div className="flex items-center gap-2">
+            <div {...dragHandleProps}>
+              <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
+            </div>
+            <div className="grid gap-4 flex-1">
+              <div className="space-y-2">
+                <Label htmlFor={`name-${index}`}>Project Name</Label>
+                <Input
+                  id={`name-${index}`}
+                  placeholder="Project Name"
+                  value={project.name}
+                  onChange={(e) => handleChange(e, index, 'projects', 'name')}
+                />
               </div>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button type="button" variant={"destructive"} className="ml-2" onClick={() => removeDetail(index, detailIndex, 'projects')}><X /></Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Remove Detail</p>
-                </TooltipContent>
-              </Tooltip>
+
+              <div className="space-y-2">
+                <Label htmlFor={`technologies-${index}`}>Technologies Used</Label>
+                <FormattedInput
+                  value={project.technologies}
+                  onChange={(value) =>
+                    handleChange(
+                      { target: { value } } as React.ChangeEvent<HTMLInputElement>,
+                      index,
+                      'projects',
+                      'technologies'
+                    )
+                  }
+                  placeholder="e.g., React, Node.js, MongoDB..."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor={`liveUrl-${index}`}>Live Demo URL</Label>
+                  <Input
+                    id={`liveUrl-${index}`}
+                    placeholder="https://..."
+                    value={project.liveUrl}
+                    onChange={(e) => handleChange(e, index, 'projects', 'liveUrl')}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`githubUrl-${index}`}>GitHub URL</Label>
+                  <Input
+                    id={`githubUrl-${index}`}
+                    placeholder="https://github.com/..."
+                    value={project.githubUrl}
+                    onChange={(e) => handleChange(e, index, 'projects', 'githubUrl')}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Details</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => addDetail(index, 'projects')}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Detail
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {project.details.map((detail, detailIndex) => (
+                    <div key={detailIndex} className="grid grid-cols-[1fr_auto_auto] gap-2 items-start">
+                      <FormattedInput
+                        value={detail}
+                        onChange={(value) =>
+                          handleDetailChange(
+                            { target: { value } } as React.ChangeEvent<HTMLTextAreaElement>,
+                            index,
+                            detailIndex,
+                            'projects'
+                          )
+                        }
+                        placeholder="Add project detail..."
+                      />
+                      <AIImprovementButton
+                        text={detail}
+                        onTextImproved={(value) =>
+                          handleDetailChange(
+                            { target: { value } } as React.ChangeEvent<HTMLTextAreaElement>,
+                            index,
+                            detailIndex,
+                            'projects'
+                          )
+                        }
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => removeDetail(index, detailIndex, 'projects')}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        ))}
-        <div className="pb-2 flex items-center">
-          <Button type="button" onClick={() => addDetail(index, 'projects')}><Plus /> Add Detail</Button>
         </div>
-        <div className="pb-2 flex items-center">
-          <Button type="button" variant={"destructive"} onClick={() => removeField(index, 'projects')}><X /> Remove Project</Button>
-        </div>
-        <hr className="my-4" />
+        <Button
+          variant="outline"
+          size="icon"
+          className="ml-2"
+          onClick={() => removeField(index, 'projects')}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
-    ))}
-    <Button type="button" onClick={() => addField('projects')}><Plus /> Add Project</Button>
-  </div>
-);
+    </div>
+  )
 
-export default Projects;
+  return (
+    <div className="space-y-4">
+      <SortableList
+        items={projects}
+        onReorder={onReorder || (() => {})}
+        renderItem={renderProjectItem}
+        keyExtractor={(item) => `${item.name}-${item.technologies}`}
+      />
+      <Button onClick={() => addField('projects')} variant="outline" className="w-full">
+        Add Project
+      </Button>
+    </div>
+  )
+}

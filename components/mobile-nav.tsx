@@ -11,9 +11,17 @@ import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useAuth } from "@/lib/AuthContext"
+import { signOut } from "@/lib/auth"
 
 export function MobileNav() {
   const [open, setOpen] = React.useState(false)
+  const { user, session } = useAuth()
+
+  const handleSignOut = async () => {
+    await signOut()
+    setOpen(false)
+  }
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -34,6 +42,32 @@ export function MobileNav() {
         >
           <span className="font-bold">{siteConfig.name}</span>
         </MobileLink>
+        <ScrollArea className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
+          <div className="flex flex-col space-y-3">
+            {session ? (
+              <>
+                <span className="text-sm text-muted-foreground">
+                  {user?.email}
+                </span>
+                <Button
+                  variant="ghost"
+                  onClick={handleSignOut}
+                  className="justify-start"
+                >
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <MobileLink
+                href="/login"
+                onOpenChange={setOpen}
+                className="text-sm"
+              >
+                Sign In
+              </MobileLink>
+            )}
+          </div>
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   )

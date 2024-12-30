@@ -1,55 +1,192 @@
-import React from 'react';
-import { Input } from '@/components/ui/input';
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { HelpCircle } from 'lucide-react';
+'use client'
+
+import React from 'react'
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { FormattedInput } from "@/components/ui/formatted-input"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Check, ChevronsUpDown, Plus, X } from "lucide-react"
+import { cn } from "@/lib/utils"
+
+const skillSuggestions = {
+  languages: [
+    "Python", "JavaScript", "TypeScript", "Java", "C++", "C#", "Ruby", "Go", "Swift", "Kotlin",
+    "PHP", "Rust", "Scala", "R", "MATLAB", "SQL", "HTML", "CSS", "Shell", "Perl"
+  ],
+  frameworks: [
+    "React", "Angular", "Vue.js", "Next.js", "Django", "Flask", "Spring", "Express.js", "Laravel",
+    "Ruby on Rails", "ASP.NET", "FastAPI", "TensorFlow", "PyTorch", "Node.js", "Svelte",
+    "Bootstrap", "Tailwind CSS", "Material-UI", "jQuery"
+  ],
+  tools: [
+    "Git", "Docker", "Kubernetes", "AWS", "Azure", "Google Cloud", "Jenkins", "CircleCI",
+    "GitHub Actions", "Jira", "Confluence", "VS Code", "IntelliJ IDEA", "PyCharm", "Postman",
+    "Webpack", "npm", "yarn", "Linux", "Nginx"
+  ]
+}
 
 interface SkillsProps {
   skills: {
-    languages: string;
-    frameworks: string;
-    tools: string;
-  };
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>, index: number | null, section: string, field: string) => void;
+    languages: string
+    frameworks: string
+    tools: string
+  }
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>, index: number | null, section: string, field: string) => void
 }
 
-const Skills: React.FC<SkillsProps> = ({ skills, handleChange }) => (
-  <div>
-    <div className="pb-2 flex items-center">
-      <div className="w-full p-1 flex items-center">
-        <Input type="text" placeholder="Languages" value={skills.languages} onChange={(e) => handleChange(e, null, 'skills', 'languages')} />
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
-            <TooltipContent>
-              <p>Enter programming languages you are proficient in.</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-    </div>
-    <div className="pb-2 flex items-center">
-      <div className="w-full p-1 flex items-center">
-        <Input type="text" placeholder="Frameworks" value={skills.frameworks} onChange={(e) => handleChange(e, null, 'skills', 'frameworks')} />
-        <Tooltip>
-          <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
-          <TooltipContent>
-            <p>Enter frameworks and libraries you have experience with.</p>
-          </TooltipContent>
-        </Tooltip>
-      </div>
-    </div>
-    <div className="pb-2 flex items-center">
-      <div className="w-full p-1 flex items-center">
-        <Input type="text" placeholder="Tools" value={skills.tools} onChange={(e) => handleChange(e, null, 'skills', 'tools')} />
-        <Tooltip>
-          <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
-          <TooltipContent>
-            <p>Enter tools and technologies you are familiar with.</p>
-          </TooltipContent>
-        </Tooltip>
-      </div>
-    </div>
-  </div>
-);
+interface SkillCategory {
+  name: string
+  field: keyof typeof skillSuggestions
+  placeholder: string
+}
 
-export default Skills;
+type SkillField = keyof typeof skillSuggestions
+
+const skillCategories: SkillCategory[] = [
+  {
+    name: "Programming Languages",
+    field: "languages",
+    placeholder: "e.g., Python, JavaScript, Java..."
+  },
+  {
+    name: "Frameworks & Libraries",
+    field: "frameworks",
+    placeholder: "e.g., React, Django, Spring..."
+  },
+  {
+    name: "Tools & Technologies",
+    field: "tools",
+    placeholder: "e.g., Git, Docker, AWS..."
+  }
+]
+
+export default function Skills({ skills, handleChange }: SkillsProps) {
+  const [open, setOpen] = React.useState<{ [K in SkillField]?: boolean }>({})
+  const [search, setSearch] = React.useState<{ [K in SkillField]?: string }>({})
+
+  const getSkillsArray = (field: SkillField) => {
+    return skills[field].split(',').map(s => s.trim()).filter(Boolean)
+  }
+
+  const handleAddSkill = (field: SkillField, skill: string) => {
+    const currentSkills = getSkillsArray(field)
+    if (!currentSkills.includes(skill)) {
+      const newSkills = [...currentSkills, skill].join(', ')
+      handleChange(
+        { target: { value: newSkills } } as React.ChangeEvent<HTMLInputElement>,
+        null,
+        'skills',
+        field
+      )
+    }
+    setOpen({ ...open, [field]: false })
+    setSearch({ ...search, [field]: '' })
+  }
+
+  const handleRemoveSkill = (field: SkillField, skillToRemove: string) => {
+    const currentSkills = getSkillsArray(field)
+    const newSkills = currentSkills.filter(skill => skill !== skillToRemove).join(', ')
+    handleChange(
+      { target: { value: newSkills } } as React.ChangeEvent<HTMLInputElement>,
+      null,
+      'skills',
+      field
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-4 rounded-lg border p-4">
+        <div className="space-y-6">
+          {skillCategories.map((category) => (
+            <div key={category.field} className="space-y-2">
+              <Label htmlFor={category.field}>{category.name}</Label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {getSkillsArray(category.field).map((skill, index) => (
+                  <Badge key={index} variant="secondary" className="text-sm py-1 px-2">
+                    {skill}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-4 w-4 p-0 ml-1 hover:bg-transparent"
+                      onClick={() => handleRemoveSkill(category.field, skill)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Popover open={open[category.field]} onOpenChange={(isOpen) => setOpen({ ...open, [category.field]: isOpen })}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open[category.field]}
+                      className="justify-between"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add {category.name}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0">
+                    <Command>
+                      <CommandInput
+                        placeholder={`Search ${category.name.toLowerCase()}...`}
+                        value={search[category.field]}
+                        onValueChange={(value) => setSearch({ ...search, [category.field]: value })}
+                      />
+                      <CommandEmpty>No {category.name.toLowerCase()} found.</CommandEmpty>
+                      <CommandGroup className="max-h-[200px] overflow-y-auto">
+                        {skillSuggestions[category.field].map((skill) => (
+                          <CommandItem
+                            key={skill}
+                            value={skill}
+                            onSelect={() => handleAddSkill(category.field, skill)}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                getSkillsArray(category.field).includes(skill) ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {skill}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <Input
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value.trim()) {
+                      handleAddSkill(category.field, e.target.value.trim())
+                      e.target.value = ''
+                    }
+                  }}
+                  placeholder={`Type a custom ${category.name.toLowerCase()} and press Enter`}
+                  className="flex-1"
+                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      const input = e.currentTarget
+                      if (input.value.trim()) {
+                        handleAddSkill(category.field, input.value.trim())
+                        input.value = ''
+                      }
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}

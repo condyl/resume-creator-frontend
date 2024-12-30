@@ -1,94 +1,246 @@
-import React, { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import MonthPickerPopover from '../month-picker-popover';
-import { format } from 'date-fns';
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { X, HelpCircle, Plus } from 'lucide-react';
+'use client'
+
+import React, { useState } from 'react'
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Trash2, ChevronsUpDown, Check, Eye, EyeOff, GripVertical } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { MonthRangePicker } from "@/components/ui/month-range-picker"
+import { FormattedInput } from "@/components/ui/formatted-input"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
+import SortableList from "@/components/ui/sortable-list"
+
+const degreeTypes = [
+  "Associate Degree",
+  "Bachelor of Arts",
+  "Bachelor of Science",
+  "Bachelor of Engineering",
+  "Bachelor of Business Administration",
+  "Master of Arts",
+  "Master of Science",
+  "Master of Business Administration",
+  "Master of Engineering",
+  "Doctor of Philosophy",
+  "Doctor of Medicine",
+  "Juris Doctor",
+  "High School Diploma",
+  "Certificate",
+  "Diploma",
+  "Other"
+]
 
 interface EducationProps {
   education: {
-    school: string;
-    degree: string;
-    location: string;
-    coursework: string;
-  }[];
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number, section: string, field: string) => void;
-  removeField: (index: number, section: string) => void;
-  addField: (section: string) => void;
+    school: string
+    degree: string
+    program: string
+    location: string
+    coursework: string
+    startDate: string
+    endDate: string
+  }[]
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>, index: number | null, section: string, field: string) => void
+  removeField: (index: number, section: string) => void
+  addField: (section: string) => void
+  showCoursework?: boolean
+  toggleCoursework?: () => void
+  onReorder?: (newOrder: EducationProps['education']) => void
 }
 
-const Education: React.FC<EducationProps> = ({ education, handleChange, removeField, addField }) => {
-  const [dates, setDates] = useState<{ startDate: string, endDate: string }[]>(education.map(() => ({ startDate: '', endDate: '' })));
+export default function Education({
+  education,
+  handleChange,
+  removeField,
+  addField,
+  showCoursework = true,
+  toggleCoursework = () => {},
+  onReorder
+}: EducationProps) {
+  const [open, setOpen] = useState<{ [key: number]: boolean }>({})
 
-  const handleDateChange = (date: Date | "Present", index: number, field: string, formatDate: boolean = false) => {
-    const value = date === "Present" ? "Present" : date.toISOString();
-    const newDates = [...dates];
-    newDates[index] = { ...newDates[index], [field]: value };
-    setDates(newDates);
+  const handleDateChange = (index: number, dates: { startDate: string; endDate: string }) => {
+    const e = {
+      target: { value: dates.startDate }
+    } as React.ChangeEvent<HTMLInputElement>
+    handleChange(e, index, 'education', 'startDate')
 
-    if (formatDate) {
-      const formattedStartDate = newDates[index].startDate === "Present" ? "Present" : format(new Date(newDates[index].startDate), "MMM yyyy");
-      const formattedEndDate = newDates[index].endDate === "Present" ? "Present" : format(new Date(newDates[index].endDate), "MMM yyyy");
-      const combinedDates = `${formattedStartDate} - ${formattedEndDate}`;
-  
-      const event = {
-        target: {
-          value: combinedDates
-        }
-      } as React.ChangeEvent<HTMLInputElement>;
-      handleChange(event, index, 'education', 'dates');
-    }
-  };
+    const e2 = {
+      target: { value: dates.endDate }
+    } as React.ChangeEvent<HTMLInputElement>
+    handleChange(e2, index, 'education', 'endDate')
+  }
+
+  const renderEducationItem = (edu: typeof education[0], index: number, dragHandleProps?: any) => (
+    <div className="rounded-lg border p-4">
+      <div className="flex justify-between items-start">
+        <div className="space-y-4 flex-1">
+          <div className="flex items-center gap-2">
+            <div {...dragHandleProps}>
+              <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab active:cursor-grabbing" />
+            </div>
+            <div className="grid gap-4 flex-1">
+              <div className="space-y-2">
+                <Label htmlFor={`school-${index}`}>School</Label>
+                <Input
+                  id={`school-${index}`}
+                  placeholder="School Name"
+                  value={edu.school}
+                  onChange={(e) => handleChange(e, index, 'education', 'school')}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor={`degree-${index}`}>Degree</Label>
+                  <Popover open={open[index]} onOpenChange={(isOpen) => setOpen({ ...open, [index]: isOpen })}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open[index]}
+                        className="w-full justify-between"
+                      >
+                        {edu.degree || "Select degree..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Search degrees..." />
+                        <CommandEmpty>No degree found.</CommandEmpty>
+                        <CommandGroup>
+                          {degreeTypes.map((degree) => (
+                            <CommandItem
+                              key={degree}
+                              value={degree}
+                              onSelect={(currentValue) => {
+                                const value = currentValue === currentValue.toLowerCase() ? degree : currentValue;
+                                handleChange(
+                                  { target: { value: value === 'Other' ? '' : value } } as React.ChangeEvent<HTMLInputElement>,
+                                  index,
+                                  'education',
+                                  'degree'
+                                )
+                                setOpen({ ...open, [index]: false })
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  edu.degree === degree ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {degree}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  {edu.degree === '' && (
+                    <Input
+                      placeholder="Enter custom degree"
+                      value={edu.degree}
+                      onChange={(e) => handleChange(e, index, 'education', 'degree')}
+                      className="mt-2"
+                    />
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`program-${index}`}>Program</Label>
+                  <Input
+                    id={`program-${index}`}
+                    placeholder="e.g., Computer Science"
+                    value={edu.program}
+                    onChange={(e) => handleChange(e, index, 'education', 'program')}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor={`location-${index}`}>Location</Label>
+                <Input
+                  id={`location-${index}`}
+                  placeholder="Location"
+                  value={edu.location}
+                  onChange={(e) => handleChange(e, index, 'education', 'location')}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Date Range</Label>
+                <MonthRangePicker
+                  startDate={edu.startDate}
+                  endDate={edu.endDate}
+                  onChange={(dates) => handleDateChange(index, dates)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor={`coursework-${index}`}>Relevant Coursework</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id={`coursework-${index}`}
+                    placeholder="e.g., Data Structures, Algorithms, Machine Learning..."
+                    value={edu.coursework}
+                    onChange={(e) => handleChange(e, index, 'education', 'coursework')}
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleCoursework();
+                    }}
+                    className="h-10 w-10 shrink-0"
+                  >
+                    {showCoursework ? (
+                      <Eye className="h-4 w-4" />
+                    ) : (
+                      <EyeOff className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Button
+          variant="outline"
+          size="icon"
+          className="ml-2"
+          onClick={() => removeField(index, 'education')}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  )
 
   return (
-    <div>
-      {education.map((edu, index) => (
-        <div key={index}>
-          <div className="pb-2 flex items-center">
-            <div className="w-full p-1 flex items-center">
-              <Input type="text" placeholder="School" value={edu.school} onChange={(e) => handleChange(e, index, 'education', 'school')} />
-            </div>
-          </div>
-          <div className="pb-2 flex items-center">
-            <div className="w-full p-1 flex items-center">
-              <Input type="text" placeholder="Degree" value={edu.degree} onChange={(e) => handleChange(e, index, 'education', 'degree')} />
-            </div>
-          </div>
-          <div className="pb-2 flex items-center">
-            <div className="w-full p-1 flex items-center">
-              <MonthPickerPopover placeholderText='Start Date' onDateChange={(date) => handleDateChange(date, index, 'startDate')} />
-              <div className="mx-1"></div>
-              <MonthPickerPopover placeholderText='End Date' showPresent={true} onDateChange={(date) => handleDateChange(date, index, 'endDate', true)} />
-            </div>
-          </div>
-          <div className="pb-2 flex items-center">
-            <div className="w-full p-1 flex items-center">
-              <Input type="text" placeholder="Location" value={edu.location} onChange={(e) => handleChange(e, index, 'education', 'location')} />
-            </div>
-          </div>
-          <div className="pb-2 flex items-center">
-            <div className="w-full p-1 flex items-center">
-                <Textarea placeholder="Coursework" value={edu.coursework} onChange={(e) => handleChange(e, index, 'education', 'coursework')} />
-              <Tooltip>
-                <TooltipTrigger className="ml-2 p-2 bg-[hsl(var(--primary))] border rounded-full text-[hsl(var(--primary-foreground))] w-8 h-8 flex items-center justify-center"><HelpCircle /></TooltipTrigger>
-                <TooltipContent>
-                  <p>Enter the coursework details (comma separated)</p>
-                  <p>E.g. Data Structures, Algorithms, ...</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          </div>
-          <Button type="button" variant={"destructive"} onClick={() => removeField(index, 'education')}><X /> Remove Education</Button>
-          <hr className="my-4" />
-        </div>
-      ))}
-      <Button type="button" onClick={() => addField('education')}>
-        <Plus /> Add Education
+    <div className="space-y-4">
+      <SortableList
+        items={education}
+        onReorder={onReorder || (() => {})}
+        renderItem={renderEducationItem}
+        keyExtractor={(item) => `${item.school}-${item.degree}-${item.startDate}`}
+      />
+      <Button onClick={() => addField('education')} variant="outline" className="w-full">
+        Add Education
       </Button>
     </div>
-  );
-};
-
-export default Education;
+  )
+}

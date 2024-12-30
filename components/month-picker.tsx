@@ -90,13 +90,16 @@ function MonthPicker({
 }
 
 function MonthCal({ selectedMonth, onMonthSelect, callbacks, variant, minDate, maxDate, disabledDates, onYearBackward, onYearForward, showPresent }: MonthCalProps) {
-    const [year, setYear] = React.useState<number>(selectedMonth?.getFullYear() ?? new Date().getFullYear());
-    const [month, setMonth] = React.useState<number>(selectedMonth?.getMonth() ?? new Date().getMonth());
-    const [menuYear, setMenuYear] = React.useState<number>(year);
+    const [menuYear, setMenuYear] = React.useState<number>(
+        selectedMonth?.toString() === "Present" 
+            ? new Date().getFullYear() 
+            : selectedMonth?.getFullYear() ?? new Date().getFullYear()
+    );
 
+    // Update menuYear when selectedMonth changes
     React.useEffect(() => {
-        if (selectedMonth?.toString() === "Present") {
-            setMonth(-1);
+        if (selectedMonth && selectedMonth.toString() !== "Present") {
+            setMenuYear(selectedMonth.getFullYear());
         }
     }, [selectedMonth]);
 
@@ -105,6 +108,12 @@ function MonthCal({ selectedMonth, onMonthSelect, callbacks, variant, minDate, m
     const disabledDatesMapped = disabledDates?.map((d) => {
         return { year: d.getFullYear(), month: d.getMonth() };
     });
+
+    const isSelected = (monthNum: number) => {
+        if (!selectedMonth) return false;
+        if (selectedMonth.toString() === "Present") return false;
+        return selectedMonth.getMonth() === monthNum && selectedMonth.getFullYear() === menuYear;
+    };
 
     return (
         <>
@@ -137,6 +146,7 @@ function MonthCal({ selectedMonth, onMonthSelect, callbacks, variant, minDate, m
                         return (
                             <tr key={"row-" + a} className="flex w-full mt-2">
                                 {monthRow.map((m) => {
+                                    const isMonthSelected = isSelected(m.number);
                                     return (
                                         <td
                                             key={m.number}
@@ -144,8 +154,6 @@ function MonthCal({ selectedMonth, onMonthSelect, callbacks, variant, minDate, m
                                         >
                                             <button
                                                 onClick={() => {
-                                                    setMonth(m.number);
-                                                    setYear(menuYear);
                                                     if (onMonthSelect) onMonthSelect(new Date(menuYear, m.number));
                                                 }}
                                                 disabled={
@@ -154,7 +162,7 @@ function MonthCal({ selectedMonth, onMonthSelect, callbacks, variant, minDate, m
                                                     (disabledDatesMapped ? disabledDatesMapped?.some((d) => d.year == menuYear && d.month == m.number) : false)
                                                 }
                                                 className={cn(
-                                                    buttonVariants({ variant: month == m.number && menuYear == year ? variant?.calendar?.selected ?? "default" : variant?.calendar?.main ?? "ghost" }),
+                                                    buttonVariants({ variant: isMonthSelected ? variant?.calendar?.selected ?? "default" : variant?.calendar?.main ?? "ghost" }),
                                                     "h-full w-full p-0 font-normal aria-selected:opacity-100"
                                                 )}
                                             >
@@ -171,11 +179,12 @@ function MonthCal({ selectedMonth, onMonthSelect, callbacks, variant, minDate, m
                             <td className="h-10 w-full text-center text-sm p-0 relative">
                                 <button
                                     onClick={() => {
-                                        setMonth(-1); // Set month to -1 to indicate "Present"
-                                        setYear(menuYear);
                                         if (onMonthSelect) onMonthSelect("Present" as unknown as Date);
                                     }}
-                                    className={cn(buttonVariants({ variant: "default" }), "h-full w-full p-0 font-normal")}
+                                    className={cn(
+                                        buttonVariants({ variant: selectedMonth?.toString() === "Present" ? "default" : "ghost" }),
+                                        "h-full w-full p-0 font-normal"
+                                    )}
                                 >
                                     Present
                                 </button>
