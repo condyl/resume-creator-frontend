@@ -120,7 +120,7 @@ export function SaveResumeDialog({ onSave, resumeData, currentResume }: SaveResu
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => handleSave(false)}>
-              Update "{currentResume.name}"
+              Update &quot;{currentResume.name}&quot;
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setOpen(true)}>
               Save as new resume...

@@ -178,7 +178,8 @@ const Home: React.FC = () => {
         workExperience: formattedWorkExperience,
         projects,
         skills,
-        showIcons
+        showIcons,
+        showCoursework
       }, { responseType: 'blob' });
 
       const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
