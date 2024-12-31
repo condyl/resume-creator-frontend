@@ -90,7 +90,7 @@ export default function Projects({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor={`liveUrl-${index}`}>Live Demo URL</Label>
                 <Input
@@ -153,7 +153,7 @@ export default function Projects({
               </div>
               <div className="space-y-2">
                 {project.details.map((detail, detailIndex) => (
-                  <div key={detailIndex} className="grid grid-cols-[1fr_auto_auto] gap-2 items-start">
+                  <div key={detailIndex} className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2 items-start">
                     <FormattedInput
                       value={detail}
                       onChange={(value) =>

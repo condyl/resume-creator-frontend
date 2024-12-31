@@ -4,6 +4,7 @@ import React from 'react'
 import { MonthPicker } from "@/components/ui/month-picker"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
 
 interface MonthRangePickerProps {
   startDate: string
@@ -37,24 +38,25 @@ export function MonthRangePicker({ startDate, endDate, onChange }: MonthRangePic
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <MonthPicker
         value={startDate}
         onChange={handleStartDateChange}
         placeholder="Start date"
+        className="min-w-0"
       />
 
       <span className="text-muted-foreground">to</span>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <MonthPicker
           value={endDate === 'Present' ? '' : endDate}
           onChange={handleEndDateChange}
           placeholder="End date"
-          className={isPresent ? "opacity-50" : ""}
+          className={cn("min-w-0", isPresent && "opacity-50")}
         />
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Switch
             id="present"
             checked={isPresent}

@@ -103,7 +103,7 @@ export default function Education({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor={`degree-${index}`}>Degree</Label>
                 <Popover open={open[index]} onOpenChange={(isOpen) => setOpen({ ...open, [index]: isOpen })}>
@@ -118,7 +118,7 @@ export default function Education({
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[300px] p-0">
+                  <PopoverContent className="w-[280px] sm:w-[300px] p-0">
                     <Command>
                       <CommandInput placeholder="Search degrees..." />
                       <CommandEmpty>No degree found.</CommandEmpty>
@@ -193,12 +193,13 @@ export default function Education({
 
             <div className="space-y-2">
               <Label htmlFor={`coursework-${index}`}>Relevant Coursework</Label>
-              <div className="flex gap-2">
+              <div className="flex gap-2 min-w-0">
                 <Input
                   id={`coursework-${index}`}
                   placeholder="e.g., Data Structures, Algorithms, Machine Learning..."
                   value={edu.coursework}
                   onChange={(e) => handleChange(e, index, 'education', 'coursework')}
+                  className="min-w-0"
                 />
                 <Button
                   variant="outline"
