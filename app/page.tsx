@@ -14,7 +14,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Download } from 'lucide-react';
 import { BASE_URL } from '@/lib/constants';
 import PDFViewer from '@/components/pdf-viewer';
 import { pdfjs } from 'react-pdf';
@@ -97,6 +97,7 @@ const Home: React.FC = () => {
   }]);
   const [skills, setSkills] = useState<SkillsType>({ languages: '', frameworks: '', tools: '' });
   const [resumeUrl, setResumeUrl] = useState('/blank.pdf');
+  const [latexSource, setLatexSource] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
@@ -237,7 +238,8 @@ const Home: React.FC = () => {
         dates: `${formatDate(work.startDate)} - ${formatDate(work.endDate)}`
       }));
 
-      const response = await axios.post(`${BASE_URL}/api/generate-resume`, {
+      // First request for PDF
+      const pdfResponse = await axios.post(`${BASE_URL}/api/generate-resume`, {
         personalInfo,
         education: formattedEducation.map(edu => ({
           ...edu,
@@ -249,14 +251,43 @@ const Home: React.FC = () => {
         showIcons
       }, { responseType: 'blob' });
 
-      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      // Second request for LaTeX source
+      const latexResponse = await axios.post(`${BASE_URL}/api/generate-resume`, {
+        personalInfo,
+        education: formattedEducation.map(edu => ({
+          ...edu,
+          showCoursework: edu.showCoursework
+        })),
+        workExperience: formattedWorkExperience,
+        projects,
+        skills,
+        showIcons,
+        format: 'latex'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([pdfResponse.data], { type: 'application/pdf' }));
       setResumeUrl(url);
+      setLatexSource(latexResponse.data.latex);
     } catch (err) {
       setError('Failed to generate resume.');
       console.error(err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDownloadLatex = () => {
+    if (!latexSource) return;
+    
+    const blob = new Blob([latexSource], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'resume.tex';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   const handleOutsideClick = (e: MouseEvent) => {
@@ -299,7 +330,8 @@ const Home: React.FC = () => {
     setError('');
 
     try {
-      const response = await axios.post(`${BASE_URL}/api/generate-resume`, {
+      // Request for PDF
+      const pdfResponse = await axios.post(`${BASE_URL}/api/generate-resume`, {
         personalInfo: resume.personal_info,
         education: resume.education.map(edu => ({
           ...edu,
@@ -311,8 +343,23 @@ const Home: React.FC = () => {
         showIcons: resume.show_icons
       }, { responseType: 'blob' });
 
-      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      // Request for LaTeX source
+      const latexResponse = await axios.post(`${BASE_URL}/api/generate-resume`, {
+        personalInfo: resume.personal_info,
+        education: resume.education.map(edu => ({
+          ...edu,
+          showCoursework: edu.showCoursework
+        })),
+        workExperience: resume.work_experience,
+        projects: resume.projects,
+        skills: resume.skills,
+        showIcons: resume.show_icons,
+        format: 'latex'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([pdfResponse.data], { type: 'application/pdf' }));
       setResumeUrl(url);
+      setLatexSource(latexResponse.data.latex);
     } catch (err) {
       setError('Failed to generate resume.');
       console.error(err);
@@ -617,7 +664,11 @@ const Home: React.FC = () => {
         <div className="fixed top-10 right-0 h-[calc(100vh-10rem)] overflow-y-auto z-0" style={{ width: 'calc(50% - 2px)', maxWidth: '100vw' }}>
           {resumeUrl && (
             <div className="mt-4 w-full">
-              <PDFViewer url={resumeUrl} />
+              <PDFViewer 
+                url={resumeUrl} 
+                latexSource={latexSource}
+                onDownloadLatex={handleDownloadLatex}
+              />
             </div>
           )}
         </div>
@@ -637,7 +688,11 @@ const Home: React.FC = () => {
         </button>
         {resumeUrl && (
           <div className="mt-16 w-full">
-            <PDFViewer url={resumeUrl} />
+            <PDFViewer 
+              url={resumeUrl} 
+              latexSource={latexSource}
+              onDownloadLatex={handleDownloadLatex}
+            />
           </div>
         )}
         <button

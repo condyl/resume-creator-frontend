@@ -1,14 +1,24 @@
+'use client'
+
 import { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, ChevronDown, FileText, FileCode } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface PDFViewerProps {
   url: string;
+  latexSource?: string | null;
+  onDownloadLatex?: () => void;
 }
 
-function PDFViewer({ url }: PDFViewerProps) {
+function PDFViewer({ url, latexSource, onDownloadLatex }: PDFViewerProps) {
   const [numPages, setNumPages] = useState<number>();
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [loading, setLoading] = useState(true);
@@ -106,15 +116,27 @@ function PDFViewer({ url }: PDFViewerProps) {
               </div>
             )}
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={downloadPDF}
-            className="ml-auto"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Download
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Download
+                <ChevronDown className="h-4 w-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={downloadPDF}>
+                <FileText className="h-4 w-4 mr-2" />
+                Download PDF
+              </DropdownMenuItem>
+              {latexSource && onDownloadLatex && (
+                <DropdownMenuItem onClick={onDownloadLatex}>
+                  <FileCode className="h-4 w-4 mr-2" />
+                  Download LaTeX
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>
