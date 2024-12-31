@@ -119,7 +119,7 @@ export default function Skills({ skills, handleChange }: SkillsProps) {
                   </Badge>
                 ))}
               </div>
-              <div className="grid grid-cols-[280px_1fr] gap-2">
+              <div className="grid grid-cols-1 [@media(min-width:1024px)_and_(min-width:600px)]:grid-cols-[280px_1fr] gap-2">
                 <Popover open={open[category.field]} onOpenChange={(isOpen) => setOpen({ ...open, [category.field]: isOpen })}>
                   <PopoverTrigger asChild>
                     <Button
@@ -133,7 +133,7 @@ export default function Skills({ skills, handleChange }: SkillsProps) {
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[300px] p-0">
+                  <PopoverContent className="w-[280px] p-0" align="start">
                     <Command>
                       <CommandInput
                         placeholder={`Search ${category.name.toLowerCase()}...`}

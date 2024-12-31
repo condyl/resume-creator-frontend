@@ -36,7 +36,7 @@ export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, hand
             Name <span className="text-destructive">*</span>
           </Label>
           <div className="flex items-center gap-2">
-            <div className="relative flex-1">
+            <div className="relative flex-1 min-w-0">
               <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 id="name"
@@ -55,7 +55,7 @@ export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, hand
             Email <span className="text-destructive">*</span>
           </Label>
           <div className="flex items-center gap-2">
-            <div className="relative flex-1">
+            <div className="relative flex-1 min-w-0">
               <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 id="email"
@@ -67,7 +67,7 @@ export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, hand
                 required
               />
             </div>
-            <Button onClick={() => toggleIcon('email')} size="icon" variant="outline">
+            <Button onClick={() => toggleIcon('email')} size="icon" variant="outline" className="shrink-0">
               {showIcons.email ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
             </Button>
           </div>
@@ -80,7 +80,7 @@ export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, hand
           <div className="space-y-2">
             <Label htmlFor="github">GitHub</Label>
             <div className="flex items-center gap-2">
-              <div className="relative flex-1">
+              <div className="relative flex-1 min-w-0">
                 <Github className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="github"
@@ -90,7 +90,7 @@ export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, hand
                   className={cn("pl-9", !showIcons.github && "text-muted-foreground")}
                 />
               </div>
-              <Button onClick={() => toggleIcon('github')} size="icon" variant="outline">
+              <Button onClick={() => toggleIcon('github')} size="icon" variant="outline" className="shrink-0">
                 {showIcons.github ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </Button>
             </div>
@@ -99,7 +99,7 @@ export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, hand
           <div className="space-y-2">
             <Label htmlFor="linkedin">LinkedIn</Label>
             <div className="flex items-center gap-2">
-              <div className="relative flex-1">
+              <div className="relative flex-1 min-w-0">
                 <Linkedin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="linkedin"
@@ -109,16 +109,16 @@ export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, hand
                   className={cn("pl-9", !showIcons.linkedin && "text-muted-foreground")}
                 />
               </div>
-              <Button onClick={() => toggleIcon('linkedin')} size="icon" variant="outline">
+              <Button onClick={() => toggleIcon('linkedin')} size="icon" variant="outline" className="shrink-0">
                 {showIcons.linkedin ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </Button>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="website">Personal Website</Label>
+            <Label htmlFor="website">Website</Label>
             <div className="flex items-center gap-2">
-              <div className="relative flex-1">
+              <div className="relative flex-1 min-w-0">
                 <Globe className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="website"
@@ -128,7 +128,7 @@ export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, hand
                   className={cn("pl-9", !showIcons.website && "text-muted-foreground")}
                 />
               </div>
-              <Button onClick={() => toggleIcon('website')} size="icon" variant="outline">
+              <Button onClick={() => toggleIcon('website')} size="icon" variant="outline" className="shrink-0">
                 {showIcons.website ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </Button>
             </div>
@@ -137,18 +137,17 @@ export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, hand
           <div className="space-y-2">
             <Label htmlFor="phone">Phone</Label>
             <div className="flex items-center gap-2">
-              <div className="relative flex-1">
+              <div className="relative flex-1 min-w-0">
                 <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="phone"
-                  type="tel"
                   placeholder="Phone Number"
                   value={personalInfo.phone}
                   onChange={(e) => handleChange(e, null, 'personalInfo', 'phone')}
                   className={cn("pl-9", !showIcons.phone && "text-muted-foreground")}
                 />
               </div>
-              <Button onClick={() => toggleIcon('phone')} size="icon" variant="outline">
+              <Button onClick={() => toggleIcon('phone')} size="icon" variant="outline" className="shrink-0">
                 {showIcons.phone ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </Button>
             </div>

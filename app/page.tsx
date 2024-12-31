@@ -515,16 +515,16 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 flex flex-col md:flex-row" ref={containerRef}>
-      <div className="pr-4 w-full md:w-1/2">
+    <div className="container mx-auto p-2 sm:p-4 flex flex-col md:flex-row">
+      <div className="pr-0 md:pr-4 w-full md:w-1/2">
         <div className="rounded-lg border bg-card">
           <ResumeStatusBar
             currentResume={currentResume}
             lastSaved={lastSaved}
             isDirty={isDirty}
           />
-          <form onSubmit={(e) => e.preventDefault()} className="space-y-4 p-4">
-            <div className="flex space-x-2 mb-4">
+          <form onSubmit={(e) => e.preventDefault()} className="space-y-4 p-2 sm:p-4">
+            <div className="flex flex-col sm:flex-row gap-2 mb-4">
               {user && (
                 <>
                   <SaveResumeDialog
@@ -660,7 +660,7 @@ const Home: React.FC = () => {
           View Resume
         </button>
       )}
-      <div className="pl-4 w-full md:w-1/2 ml-0.5 hidden md:block">
+      <div className="pl-0 md:pl-4 w-full md:w-1/2 ml-0 md:ml-0.5 hidden md:block">
         <div className="fixed top-10 right-0 h-[calc(100vh-10rem)] overflow-y-auto z-0" style={{ width: 'calc(50% - 2px)', maxWidth: '100vw' }}>
           {resumeUrl && (
             <div className="mt-4 w-full">
@@ -676,8 +676,7 @@ const Home: React.FC = () => {
       <div
         className={`fixed top-0 right-0 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
           isSlideoutOpen ? 'translate-x-0' : 'translate-x-full'
-        } md:hidden`}
-        style={{ width: '100vw' }}
+        } md:hidden w-full`}
         ref={containerRef}
       >
         <button

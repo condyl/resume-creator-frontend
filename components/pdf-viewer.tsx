@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { Download, Loader2, ChevronDown, FileText, FileCode } from 'lucide-react';
 import { Button } from './ui/button';
@@ -23,6 +23,34 @@ function PDFViewer({ url, latexSource, onDownloadLatex }: PDFViewerProps) {
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [scale, setScale] = useState(1);
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      const isMobile = window.innerWidth < 768;
+      const containerWidth = isMobile ? window.innerWidth - 32 : Math.min(window.innerWidth * 0.4, 800);
+      setWidth(containerWidth);
+      
+      // Adjust scale based on width to ensure it fits nicely
+      // For a letter-sized document (8.5" x 11"), 612x792 points
+      const baseWidth = 612; // PDF point width for letter size
+      let newScale = containerWidth / baseWidth;
+      
+      // Ensure minimum scale for readability
+      if (isMobile) {
+        newScale = Math.max(newScale, 0.8); // Minimum scale on mobile
+      } else {
+        newScale = Math.max(newScale, 1.2); // Minimum scale on desktop
+      }
+      
+      setScale(newScale);
+    };
+
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
     setLoading(false);
@@ -83,6 +111,8 @@ function PDFViewer({ url, latexSource, onDownloadLatex }: PDFViewerProps) {
               )}
               renderAnnotationLayer={false}
               renderTextLayer={false}
+              scale={scale}
+              width={width}
             />
           </Document>
         </div>
