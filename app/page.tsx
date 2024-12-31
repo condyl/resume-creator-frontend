@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/accordion"
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
-import { BASE_URL } from '@/config';
+import { BASE_URL } from '@/lib/constants';
 import PDFViewer from '@/components/pdf-viewer';
 import { pdfjs } from 'react-pdf';
 import { SaveResumeDialog } from '@/components/save-resume-dialog';

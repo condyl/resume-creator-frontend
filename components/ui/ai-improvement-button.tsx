@@ -6,7 +6,7 @@ import { Brain, Loader2, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { BASE_URL } from '@/config';
+import { BASE_URL } from '@/lib/constants';
 
 interface AIImprovementButtonProps {
   text: string;

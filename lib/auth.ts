@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { Provider } from '@supabase/supabase-js'
+import { SITE_URL } from './constants'
 
 export const signInWithProvider = async (provider: 'google' | 'github') => {
   try {
@@ -7,7 +8,7 @@ export const signInWithProvider = async (provider: 'google' | 'github') => {
     
     const redirectTo = typeof window !== 'undefined' 
       ? `${window.location.origin}/auth/callback`
-      : 'http://localhost:3000/auth/callback'
+      : `${SITE_URL}/auth/callback`
 
     console.log('Redirect URL:', redirectTo)
 
