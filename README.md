@@ -1,63 +1,80 @@
-# Resume Builder
+# Resume Creator - Frontend
 
-This project is a resume builder frontend built with Next.js, React, Tailwind CSS, and Radix UI. It allows users to create and customize their resumes with various sections such as personal information, education, work experience, projects, and skills.
+A modern web application for creating and managing professional resumes with a clean, user-friendly interface.
 
-## Lost?
+## Prerequisites
 
-This repository only includes the frontend for this project.  If you would like to see the backend/api code, you can find it [here](https://github.com/condyl/resume-creator-backend).
+- Node.js (v18 or higher)
+- npm or yarn
+- Git
 
-## Features
-
-- **Personal Information**: Add your name, email, GitHub, website, LinkedIn, and phone number.
-- **Education**: Add details about your education including school, degree, location, and coursework.
-- **Work Experience**: Add details about your work experience including company, position, location, dates, and details.
-- **Projects**: Add details about your projects including title, link, technologies, and details.
-- **Skills**: Add details about your skills including languages, frameworks, and tools.
-- **Responsive Design**: The application is fully responsive and works on all devices.
-- **Dark Mode**: Supports dark mode for a better user experience.
-
-## Technologies Used
-
-- **Next.js**: A React framework for building server-side rendered applications.
-- **React**: A JavaScript library for building user interfaces.
-- **Tailwind CSS**: A utility-first CSS framework for rapid UI development.
-- **Radix UI & shadcn**: A set of accessible and customizable UI components.
-- **TypeScript**: A typed superset of JavaScript that compiles to plain JavaScript.
-
-## Getting Started
-
-To get started with this project, follow the instructions below:
-
-### Prerequisites
-
-- Node.js (>= 14)
-- pnpm (>= 6)
-
-### Installation
+## Setup Instructions
 
 1. Clone the repository:
-
-```sh
-git clone https://github.com/condyl/resume-creator-frontend.git
-cd resume-builder-frontend
+```bash
+git clone <your-frontend-repo-url>
+cd <frontend-directory>
 ```
 
 2. Install dependencies:
-
-```sh
-pnpm install
+```bash
+npm install
+# or
+yarn install
 ```
 
-### Running the Development Server
+3. Set up environment variables:
+```bash
+# Copy the example environment file
+cp .env.example .env.local
 
-To start the development server, run:
-
-```sh
-pnpm dev
+# Edit .env.local with your Supabase credentials
+# Replace the following values:
+# - NEXT_PUBLIC_SUPABASE_URL
+# - NEXT_PUBLIC_SUPABASE_ANON_KEY
 ```
 
-Open http://localhost:3000 with your browser to see the result.
+4. Start the development server:
+```bash
+npm run dev
+# or
+yarn dev
+```
 
-## Contributions
+The application will be available at `http://localhost:3000`.
 
-Contributions are welcome! Please open an issue or submit a pull request for any changes.
+## Environment Variables
+
+Required environment variables:
+
+- `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key
+
+You can find these values in your Supabase project dashboard under Settings > API.
+
+## Features
+
+- User authentication with Supabase
+- Interactive resume builder
+- Real-time preview
+- Multiple resume templates
+- PDF export functionality
+- Personal information management
+- Work experience tracking
+- Education history
+- Skills and projects sections
+
+## Tech Stack
+
+- Next.js
+- TypeScript
+- Tailwind CSS
+- Supabase for authentication and data storage
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
