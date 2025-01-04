@@ -330,14 +330,32 @@ const Home: React.FC = () => {
     setError('');
 
     try {
+      // Format dates for education and work experience
+      const formatDate = (dateStr: string) => {
+        if (!dateStr) return '';
+        if (dateStr === 'Present') return 'Present';
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return '';
+        return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      };
+
+      const formattedEducation = resume.education.map(edu => ({
+        ...edu,
+        dates: `${formatDate(edu.startDate)} - ${formatDate(edu.endDate)}`
+      }));
+      const formattedWorkExperience = resume.work_experience.map(work => ({
+        ...work,
+        dates: `${formatDate(work.startDate)} - ${formatDate(work.endDate)}`
+      }));
+
       // Request for PDF
       const pdfResponse = await axios.post(`${BASE_URL}/api/generate-resume`, {
         personalInfo: resume.personal_info,
-        education: resume.education.map(edu => ({
+        education: formattedEducation.map(edu => ({
           ...edu,
           showCoursework: edu.showCoursework
         })),
-        workExperience: resume.work_experience,
+        workExperience: formattedWorkExperience,
         projects: resume.projects,
         skills: resume.skills,
         showIcons: resume.show_icons
@@ -346,11 +364,11 @@ const Home: React.FC = () => {
       // Request for LaTeX source
       const latexResponse = await axios.post(`${BASE_URL}/api/generate-resume`, {
         personalInfo: resume.personal_info,
-        education: resume.education.map(edu => ({
+        education: formattedEducation.map(edu => ({
           ...edu,
           showCoursework: edu.showCoursework
         })),
-        workExperience: resume.work_experience,
+        workExperience: formattedWorkExperience,
         projects: resume.projects,
         skills: resume.skills,
         showIcons: resume.show_icons,
