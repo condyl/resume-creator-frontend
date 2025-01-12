@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { ButtonWithTooltip } from "@/components/ui/button-with-tooltip"
 import { Eye, EyeOff, User, Mail, Phone, Globe, Github, Linkedin } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
@@ -67,9 +67,15 @@ export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, hand
                 required
               />
             </div>
-            <Button onClick={() => toggleIcon('email')} size="icon" variant="outline" className="shrink-0">
-              {showIcons.email ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-            </Button>
+            <ButtonWithTooltip
+              onClick={() => toggleIcon('email')}
+              size="icon"
+              variant="outline"
+              className="shrink-0"
+              tooltipText={showIcons.email ? "Hide email" : "Show email"}
+              ariaLabel={showIcons.email ? "Hide email" : "Show email"}
+              icon={showIcons.email ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+            />
           </div>
         </div>
       </div>
@@ -90,9 +96,15 @@ export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, hand
                   className={cn("pl-9", !showIcons.github && "text-muted-foreground")}
                 />
               </div>
-              <Button onClick={() => toggleIcon('github')} size="icon" variant="outline" className="shrink-0">
-                {showIcons.github ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-              </Button>
+              <ButtonWithTooltip
+                onClick={() => toggleIcon('github')}
+                size="icon"
+                variant="outline"
+                className="shrink-0"
+                tooltipText={showIcons.github ? "Hide GitHub" : "Show GitHub"}
+                ariaLabel={showIcons.github ? "Hide GitHub" : "Show GitHub"}
+                icon={showIcons.github ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              />
             </div>
           </div>
 
@@ -109,9 +121,15 @@ export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, hand
                   className={cn("pl-9", !showIcons.linkedin && "text-muted-foreground")}
                 />
               </div>
-              <Button onClick={() => toggleIcon('linkedin')} size="icon" variant="outline" className="shrink-0">
-                {showIcons.linkedin ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-              </Button>
+              <ButtonWithTooltip
+                onClick={() => toggleIcon('linkedin')}
+                size="icon"
+                variant="outline"
+                className="shrink-0"
+                tooltipText={showIcons.linkedin ? "Hide LinkedIn" : "Show LinkedIn"}
+                ariaLabel={showIcons.linkedin ? "Hide LinkedIn" : "Show LinkedIn"}
+                icon={showIcons.linkedin ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              />
             </div>
           </div>
 
@@ -128,9 +146,15 @@ export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, hand
                   className={cn("pl-9", !showIcons.website && "text-muted-foreground")}
                 />
               </div>
-              <Button onClick={() => toggleIcon('website')} size="icon" variant="outline" className="shrink-0">
-                {showIcons.website ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-              </Button>
+              <ButtonWithTooltip
+                onClick={() => toggleIcon('website')}
+                size="icon"
+                variant="outline"
+                className="shrink-0"
+                tooltipText={showIcons.website ? "Hide Website" : "Show Website"}
+                ariaLabel={showIcons.website ? "Hide Website" : "Show Website"}
+                icon={showIcons.website ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              />
             </div>
           </div>
 
@@ -147,9 +171,15 @@ export default function PersonalInfo({ personalInfo, showIcons, toggleIcon, hand
                   className={cn("pl-9", !showIcons.phone && "text-muted-foreground")}
                 />
               </div>
-              <Button onClick={() => toggleIcon('phone')} size="icon" variant="outline" className="shrink-0">
-                {showIcons.phone ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-              </Button>
+              <ButtonWithTooltip
+                onClick={() => toggleIcon('phone')}
+                size="icon"
+                variant="outline"
+                className="shrink-0"
+                tooltipText={showIcons.phone ? "Hide Phone" : "Show Phone"}
+                ariaLabel={showIcons.phone ? "Hide Phone" : "Show Phone"}
+                icon={showIcons.phone ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              />
             </div>
           </div>
         </div>

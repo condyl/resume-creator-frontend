@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
+import { ButtonWithTooltip } from "@/components/ui/button-with-tooltip"
 import { Calendar } from "@/components/ui/calendar"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
@@ -22,64 +23,65 @@ interface MonthPickerProps {
 }
 
 export function MonthPicker({ value, onChange, placeholder = "Select month...", className }: MonthPickerProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [viewDate, setViewDate] = useState(() => value ? new Date(value) : new Date())
-
-  const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ]
-
-  const handleMonthSelect = (monthIndex: number) => {
-    const newDate = setMonth(viewDate, monthIndex)
-    onChange(newDate.toISOString())
-    setIsOpen(false)
-  }
+  const [viewDate, setViewDate] = useState(value ? new Date(value) : new Date())
 
   const handleYearChange = (increment: number) => {
-    const newDate = setYear(viewDate, viewDate.getFullYear() + increment)
-    setViewDate(newDate)
+    setViewDate(prev => {
+      const newDate = new Date(prev)
+      newDate.setFullYear(prev.getFullYear() + increment)
+      return newDate
+    })
   }
 
-  const formatDate = (date: string) => {
-    return format(new Date(date), 'MMM yyyy')
+  const handleMonthSelect = (monthIndex: number) => {
+    const date = new Date(viewDate)
+    date.setMonth(monthIndex)
+    onChange(format(date, 'yyyy-MM'))
   }
+
+  const months = [
+    "January", "February", "March", "April",
+    "May", "June", "July", "August",
+    "September", "October", "November", "December"
+  ]
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           className={cn(
-            "w-[140px] justify-start text-left font-normal",
+            "w-full justify-start text-left font-normal",
             !value && "text-muted-foreground",
             className
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? formatDate(value) : placeholder}
+          {value ? format(new Date(value), 'MMMM yyyy') : placeholder}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <div className="p-3">
           <div className="flex items-center justify-between mb-2">
-            <Button
+            <ButtonWithTooltip
               variant="outline"
               size="icon"
               onClick={() => handleYearChange(-1)}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
+              icon={<ChevronLeft className="h-4 w-4" />}
+              tooltipText="Previous Year"
+              ariaLabel="Go to previous year"
+            />
             <div className="font-semibold">
               {viewDate.getFullYear()}
             </div>
-            <Button
+            <ButtonWithTooltip
               variant="outline"
               size="icon"
               onClick={() => handleYearChange(1)}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+              icon={<ChevronRight className="h-4 w-4" />}
+              tooltipText="Next Year"
+              ariaLabel="Go to next year"
+            />
           </div>
           <div className="grid grid-cols-3 gap-2">
             {months.map((month, index) => (

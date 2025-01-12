@@ -3,7 +3,8 @@
 import React, { useState } from 'react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Trash2, ChevronsUpDown, Check, Eye, EyeOff, GripVertical } from "lucide-react"
+import { ButtonWithTooltip } from "@/components/ui/button-with-tooltip"
+import { Trash2, Eye, EyeOff, ArrowUp, ArrowDown, ChevronsUpDown, Check } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { MonthRangePicker } from "@/components/ui/month-range-picker"
 import { FormattedInput } from "@/components/ui/formatted-input"
@@ -201,52 +202,52 @@ export default function Education({
                   onChange={(e) => handleChange(e, index, 'education', 'coursework')}
                   className="min-w-0"
                 />
-                <Button
+                <ButtonWithTooltip
                   variant="outline"
                   size="icon"
                   onClick={(e) => {
                     e.preventDefault();
                     toggleCoursework(index);
                   }}
-                  className="h-10 w-10 shrink-0"
-                >
-                  {edu.showCoursework ? (
-                    <Eye className="h-4 w-4" />
-                  ) : (
-                    <EyeOff className="h-4 w-4" />
-                  )}
-                </Button>
+                  className="shrink-0"
+                  tooltipText={edu.showCoursework ? "Hide coursework" : "Show coursework"}
+                  ariaLabel={edu.showCoursework ? "Hide coursework" : "Show coursework"}
+                  icon={edu.showCoursework ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                />
               </div>
             </div>
           </div>
         </div>
         <div className="flex flex-col gap-2 pl-2 border-l">
-          <Button
+          <ButtonWithTooltip
             variant="ghost"
             size="icon"
             onClick={() => onReorder?.(arrayMove(education, index, index - 1))}
             disabled={index === 0}
-            className="h-8 w-8 hover:bg-muted"
-          >
-            ↑
-          </Button>
-          <Button
+            className="h-8 w-8"
+            tooltipText="Move up"
+            ariaLabel="Move education up"
+            icon={<ArrowUp className="h-4 w-4" />}
+          />
+          <ButtonWithTooltip
             variant="ghost"
             size="icon"
             onClick={() => onReorder?.(arrayMove(education, index, index + 1))}
             disabled={index === education.length - 1}
-            className="h-8 w-8 hover:bg-muted"
-          >
-            ↓
-          </Button>
-          <Button
+            className="h-8 w-8"
+            tooltipText="Move down"
+            ariaLabel="Move education down"
+            icon={<ArrowDown className="h-4 w-4" />}
+          />
+          <ButtonWithTooltip
             variant="ghost"
             size="icon"
             className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
             onClick={() => removeField(index, 'education')}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+            tooltipText="Delete education"
+            ariaLabel="Delete education"
+            icon={<Trash2 className="h-4 w-4" />}
+          />
         </div>
       </div>
     </div>

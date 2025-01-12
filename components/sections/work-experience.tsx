@@ -3,7 +3,8 @@
 import React from 'react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Trash2, Plus } from "lucide-react"
+import { ButtonWithTooltip } from "@/components/ui/button-with-tooltip"
+import { Trash2, Plus, ArrowUp, ArrowDown } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { MonthRangePicker } from "@/components/ui/month-range-picker"
 import { FormattedInput } from "@/components/ui/formatted-input"
@@ -50,10 +51,10 @@ export default function WorkExperience({
     handleChange(e2, index, 'workExperience', 'endDate')
   }
 
-  const renderWorkExperienceItem = (work: typeof workExperience[0], index: number) => (
-    <div className="rounded-lg border p-4">
-      <div className="flex justify-between items-start gap-4">
-        <div className="space-y-4 flex-1">
+  const renderWorkExperienceItem = (work: WorkExperienceProps['workExperience'][0], index: number) => (
+    <div key={index} className="space-y-4 rounded-lg border p-4">
+      <div className="flex gap-4">
+        <div className="flex-1 space-y-4">
           <div className="grid gap-4 flex-1">
             <div className="space-y-2">
               <Label htmlFor={`company-${index}`}>Company</Label>
@@ -133,14 +134,16 @@ export default function WorkExperience({
                         )
                       }
                     />
-                    <Button
+                    <ButtonWithTooltip
                       type="button"
                       variant="outline"
                       size="icon"
                       onClick={() => removeDetail(index, detailIndex, 'workExperience')}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                      tooltipText="Delete detail"
+                      ariaLabel="Delete work experience detail"
+                      icon={<Trash2 className="h-4 w-4" />}
+                      className="hover:bg-destructive hover:text-destructive-foreground"
+                    />
                   </div>
                 ))}
               </div>
@@ -148,32 +151,35 @@ export default function WorkExperience({
           </div>
         </div>
         <div className="flex flex-col gap-2 pl-2 border-l">
-          <Button
+          <ButtonWithTooltip
             variant="ghost"
             size="icon"
             onClick={() => onReorder?.(arrayMove(workExperience, index, index - 1))}
             disabled={index === 0}
-            className="h-8 w-8 hover:bg-muted"
-          >
-            ↑
-          </Button>
-          <Button
+            className="h-8 w-8"
+            tooltipText="Move up"
+            ariaLabel="Move work experience up"
+            icon={<ArrowUp className="h-4 w-4" />}
+          />
+          <ButtonWithTooltip
             variant="ghost"
             size="icon"
             onClick={() => onReorder?.(arrayMove(workExperience, index, index + 1))}
             disabled={index === workExperience.length - 1}
-            className="h-8 w-8 hover:bg-muted"
-          >
-            ↓
-          </Button>
-          <Button
+            className="h-8 w-8"
+            tooltipText="Move down"
+            ariaLabel="Move work experience down"
+            icon={<ArrowDown className="h-4 w-4" />}
+          />
+          <ButtonWithTooltip
             variant="ghost"
             size="icon"
             className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
             onClick={() => removeField(index, 'workExperience')}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+            tooltipText="Delete work experience"
+            ariaLabel="Delete work experience"
+            icon={<Trash2 className="h-4 w-4" />}
+          />
         </div>
       </div>
     </div>

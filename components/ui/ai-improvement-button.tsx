@@ -1,10 +1,9 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { ButtonWithTooltip } from '@/components/ui/button-with-tooltip';
 import { Brain, Loader2, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { BASE_URL } from '@/lib/constants';
 
@@ -16,61 +15,47 @@ interface AIImprovementButtonProps {
 
 const AIImprovementButton: React.FC<AIImprovementButtonProps> = ({ text, onTextImproved, className }) => {
   const [loading, setLoading] = useState(false);
-  const [showError, setShowError] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showError, setShowError] = useState(false);
 
   const handleImproveText = async () => {
-    if (!text) {
-      setShowError(true);
-      setError('Please provide text to improve.');
-      return;
-    }
-
+    if (loading) return;
     setLoading(true);
-    setShowError(false);
     setError(null);
 
     try {
-      const response = await axios.post(`${BASE_URL}/api/improve-text`, { text }, { headers: { 'Content-Type': 'application/json' } });
+      const response = await axios.post(`${BASE_URL}/api/improve`, { text });
       const improvedText = response.data.improvedText;
-      if (improvedText.includes("ERROR")) {
-        throw new Error("AI returned an error.");
-      }
       onTextImproved(improvedText);
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        console.error('Error improving text:', error.response.data);
-        setError(error.response.data.message || 'Error improving text.');
-      } else if (axios.isAxiosError(error)) {
-        console.error('Network error:', error.message);
-        setError('Network error: ' + error.message);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.error || 'Failed to improve text');
+        setShowError(true);
       } else {
-        console.error('Error improving text:', error);
-        setError((error as Error).message || 'An unexpected error occurred.');
+        setError('An unexpected error occurred');
+        setShowError(true);
       }
-      setShowError(true);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Tooltip>
+    <>
       {showError ? (
         <Popover open={showError} onOpenChange={setShowError}>
           <PopoverTrigger asChild>
-            <TooltipTrigger asChild>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="icon"
-                className={className}
-                onClick={handleImproveText} 
-                disabled={loading}
-              >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
-              </Button>
-            </TooltipTrigger>
+            <ButtonWithTooltip 
+              type="button" 
+              variant="outline" 
+              size="icon"
+              className={className}
+              onClick={handleImproveText} 
+              disabled={loading}
+              icon={loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
+              tooltipText="Improve this text using AI"
+              ariaLabel="Improve text with AI"
+            />
           </PopoverTrigger>
           <PopoverContent className="flex items-center space-x-2 p-4">
             <AlertTriangle className="h-4 w-4 text-yellow-500" />
@@ -78,23 +63,19 @@ const AIImprovementButton: React.FC<AIImprovementButtonProps> = ({ text, onTextI
           </PopoverContent>
         </Popover>
       ) : (
-        <TooltipTrigger asChild>
-          <Button 
-            type="button" 
-            variant="ghost" 
-            size="icon"
-            className={className}
-            onClick={handleImproveText} 
-            disabled={loading}
-          >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
-          </Button>
-        </TooltipTrigger>
+        <ButtonWithTooltip 
+          type="button" 
+          variant="outline" 
+          size="icon"
+          className={className}
+          onClick={handleImproveText} 
+          disabled={loading}
+          icon={loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
+          tooltipText="Improve this text using AI"
+          ariaLabel="Improve text with AI"
+        />
       )}
-      <TooltipContent>
-        <p className="text-sm">Improve this text using AI</p>
-      </TooltipContent>
-    </Tooltip>
+    </>
   );
 };
 
