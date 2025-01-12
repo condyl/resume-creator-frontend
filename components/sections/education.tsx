@@ -90,9 +90,9 @@ export default function Education({
 
   const renderEducationItem = (edu: typeof education[0], index: number) => (
     <div className="rounded-lg border p-4">
-      <div className="flex justify-between items-start gap-4">
-        <div className="space-y-4 flex-1">
-          <div className="grid gap-4 flex-1">
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-1 space-y-4 min-w-0 overflow-hidden">
+          <div className="grid gap-4">
             <div className="space-y-2">
               <Label htmlFor={`school-${index}`}>School</Label>
               <Input
@@ -100,11 +100,10 @@ export default function Education({
                 placeholder="School Name"
                 value={edu.school}
                 onChange={(e) => handleChange(e, index, 'education', 'school')}
-                className="w-full"
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor={`degree-${index}`}>Degree</Label>
                 <Popover open={open[index]} onOpenChange={(isOpen) => setOpen({ ...open, [index]: isOpen })}>
@@ -115,23 +114,21 @@ export default function Education({
                       aria-expanded={open[index]}
                       className="w-full justify-between"
                     >
-                      {edu.degree || "Select degree..."}
+                      <span className="truncate">{edu.degree ? edu.degree : "Select degree..."}</span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[280px] sm:w-[300px] p-0">
+                  <PopoverContent className="w-full p-0" align="start">
                     <Command>
-                      <CommandInput placeholder="Search degrees..." />
+                      <CommandInput placeholder="Search degree..." />
                       <CommandEmpty>No degree found.</CommandEmpty>
                       <CommandGroup>
                         {degreeTypes.map((degree) => (
                           <CommandItem
                             key={degree}
-                            value={degree}
-                            onSelect={(currentValue) => {
-                              const value = currentValue === currentValue.toLowerCase() ? degree : currentValue;
+                            onSelect={() => {
                               handleChange(
-                                { target: { value: value === 'Other' ? '' : value } } as React.ChangeEvent<HTMLInputElement>,
+                                { target: { value: degree } } as React.ChangeEvent<HTMLInputElement>,
                                 index,
                                 'education',
                                 'degree'
@@ -193,15 +190,8 @@ export default function Education({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor={`coursework-${index}`}>Relevant Coursework</Label>
-              <div className="flex gap-2 min-w-0">
-                <Input
-                  id={`coursework-${index}`}
-                  placeholder="e.g., Data Structures, Algorithms, Machine Learning..."
-                  value={edu.coursework}
-                  onChange={(e) => handleChange(e, index, 'education', 'coursework')}
-                  className="min-w-0"
-                />
+              <div className="flex items-center gap-2">
+                <Label htmlFor={`coursework-${index}`}>Relevant Coursework</Label>
                 <ButtonWithTooltip
                   variant="outline"
                   size="icon"
@@ -215,10 +205,16 @@ export default function Education({
                   icon={edu.showCoursework ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                 />
               </div>
+              <Input
+                id={`coursework-${index}`}
+                placeholder="e.g., Data Structures, Algorithms, Machine Learning..."
+                value={edu.coursework}
+                onChange={(e) => handleChange(e, index, 'education', 'coursework')}
+              />
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-2 pl-2 border-l">
+        <div className="flex sm:flex-col gap-2 sm:pl-4 sm:border-l border-t sm:border-t-0 pt-2 sm:pt-0 shrink-0">
           <ButtonWithTooltip
             variant="ghost"
             size="icon"

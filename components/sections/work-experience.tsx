@@ -53,9 +53,9 @@ export default function WorkExperience({
 
   const renderWorkExperienceItem = (work: WorkExperienceProps['workExperience'][0], index: number) => (
     <div key={index} className="space-y-4 rounded-lg border p-4">
-      <div className="flex gap-4">
-        <div className="flex-1 space-y-4">
-          <div className="grid gap-4 flex-1">
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="grid gap-4">
             <div className="space-y-2">
               <Label htmlFor={`company-${index}`}>Company</Label>
               <Input
@@ -142,7 +142,7 @@ export default function WorkExperience({
                       tooltipText="Delete detail"
                       ariaLabel="Delete work experience detail"
                       icon={<Trash2 className="h-4 w-4" />}
-                      className="hover:bg-destructive hover:text-destructive-foreground"
+                      className="hover:bg-destructive hover:text-destructive-foreground shrink-0"
                     />
                   </div>
                 ))}
@@ -150,7 +150,7 @@ export default function WorkExperience({
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-2 pl-2 border-l">
+        <div className="flex sm:flex-col gap-2 sm:pl-4 sm:border-l border-t sm:border-t-0 pt-2 sm:pt-0 shrink-0">
           <ButtonWithTooltip
             variant="ghost"
             size="icon"

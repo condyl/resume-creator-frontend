@@ -38,32 +38,36 @@ export function MonthRangePicker({ startDate, endDate, onChange }: MonthRangePic
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <MonthPicker
-        value={startDate}
-        onChange={handleStartDateChange}
-        placeholder="Start date"
-        className="min-w-0"
-      />
-
-      <span className="text-muted-foreground">to</span>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <MonthPicker
-          value={endDate === 'Present' ? '' : endDate}
-          onChange={handleEndDateChange}
-          placeholder="End date"
-          className={cn("min-w-0", isPresent && "opacity-50")}
-        />
-
-        <div className="flex items-center gap-2 shrink-0">
-          <Switch
-            id="present"
-            checked={isPresent}
-            onCheckedChange={handlePresentToggle}
+    <div className="space-y-2">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-2 items-center">
+        <div className="w-full">
+          <MonthPicker
+            value={startDate}
+            onChange={handleStartDateChange}
+            placeholder="Start date"
           />
-          <Label htmlFor="present">Present</Label>
         </div>
+
+        <span className="hidden lg:inline text-muted-foreground">to</span>
+
+        <div className="w-full">
+          <MonthPicker
+            value={endDate === 'Present' ? '' : endDate}
+            onChange={handleEndDateChange}
+            placeholder="End date"
+            className={cn(isPresent && "opacity-50")}
+            disabled={isPresent}
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Switch
+          id="present"
+          checked={isPresent}
+          onCheckedChange={handlePresentToggle}
+        />
+        <Label htmlFor="present" className="whitespace-nowrap">Present</Label>
       </div>
     </div>
   )

@@ -11,7 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { format, setMonth, setYear } from "date-fns"
+import { format, parseISO } from "date-fns"
 import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -20,10 +20,14 @@ interface MonthPickerProps {
   onChange: (date: string) => void
   placeholder?: string
   className?: string
+  disabled?: boolean
 }
 
-export function MonthPicker({ value, onChange, placeholder = "Select month...", className }: MonthPickerProps) {
-  const [viewDate, setViewDate] = useState(value ? new Date(value) : new Date())
+export function MonthPicker({ value, onChange, placeholder = "Select month...", className, disabled }: MonthPickerProps) {
+  const [viewDate, setViewDate] = useState(() => {
+    const now = new Date()
+    return new Date(now.getFullYear(), now.getMonth(), 1)
+  })
 
   const handleYearChange = (increment: number) => {
     setViewDate(prev => {
@@ -34,9 +38,9 @@ export function MonthPicker({ value, onChange, placeholder = "Select month...", 
   }
 
   const handleMonthSelect = (monthIndex: number) => {
-    const date = new Date(viewDate)
-    date.setMonth(monthIndex)
-    onChange(format(date, 'yyyy-MM'))
+    const selectedDate = new Date(viewDate.getFullYear(), monthIndex, 1)
+    const formattedDate = format(selectedDate, 'yyyy-MM')
+    onChange(formattedDate)
   }
 
   const months = [
@@ -51,13 +55,16 @@ export function MonthPicker({ value, onChange, placeholder = "Select month...", 
         <Button
           variant="outline"
           className={cn(
-            "w-full justify-start text-left font-normal",
+            "w-full justify-start text-left font-normal min-w-0",
             !value && "text-muted-foreground",
             className
           )}
+          disabled={disabled}
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? format(new Date(value), 'MMMM yyyy') : placeholder}
+          <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+          <span className="truncate">
+            {value ? format(parseISO(value), 'MMMM yyyy') : placeholder}
+          </span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
@@ -90,8 +97,8 @@ export function MonthPicker({ value, onChange, placeholder = "Select month...", 
                 variant="outline"
                 className={cn(
                   "h-9",
-                  value && new Date(value).getMonth() === index && 
-                  new Date(value).getFullYear() === viewDate.getFullYear() && 
+                  value && parseISO(value).getMonth() === index && 
+                  parseISO(value).getFullYear() === viewDate.getFullYear() && 
                   "bg-primary text-primary-foreground hover:bg-primary/90"
                 )}
                 onClick={() => handleMonthSelect(index)}
