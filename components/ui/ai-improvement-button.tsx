@@ -24,7 +24,7 @@ const AIImprovementButton: React.FC<AIImprovementButtonProps> = ({ text, onTextI
     setError(null);
 
     try {
-      const response = await axios.post(`${BASE_URL}/api/improve`, { text });
+      const response = await axios.post(`${BASE_URL}/api/improve-text`, { text });
       const improvedText = response.data.improvedText;
       onTextImproved(improvedText);
     } catch (err) {
