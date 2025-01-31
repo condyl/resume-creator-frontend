@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { PersonalInfoType, EducationType, WorkExperienceType, ProjectType, SkillsType, ShowIconsType } from '@/lib/types';
 import { EditableText } from './ui/editable-text';
 import { Button } from './ui/button';
-import { Settings2, Plus } from 'lucide-react';
+import { Settings2, Plus, EyeOff, X } from 'lucide-react';
 import { MonthPicker } from './ui/month-picker';
 import { format, parseISO } from 'date-fns';
 import {
@@ -13,6 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import ReactDOM from 'react-dom/client';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 // Constants for page dimensions (in inches, converted to pixels)
 const INCH_TO_PX = 96; // Standard 96 DPI
@@ -46,21 +51,20 @@ interface PageProps {
 const Page: React.FC<PageProps> = ({ children, isLastPage = false }) => (
   <div 
     className={cn(
-      "bg-white border border-gray-200 shadow-md flex-shrink-0 text-black",
+      "bg-white border border-gray-200 shadow-md flex-shrink-0 text-black w-full",
       isLastPage ? "mb-0" : "mb-8"
     )}
     style={{
       width: `${PAGE_WIDTH}px`,
-      height: `${PAGE_HEIGHT}px`,
+      minHeight: `${PAGE_HEIGHT}px`,
       paddingLeft: `${MARGIN_SIDE - (0.5 * INCH_TO_PX)}px`,
       paddingRight: `${MARGIN_SIDE - (0.5 * INCH_TO_PX)}px`,
       paddingTop: `${MARGIN_TOP - (0.5 * INCH_TO_PX)}px`,
-      paddingBottom: `${MARGIN_BOTTOM}px`,
-      overflow: 'hidden'
+      paddingBottom: `${MARGIN_BOTTOM}px`
     }}
   >
     <div 
-      className="font-[times] text-black"
+      className="font-[times] text-black h-full"
       style={{ 
         fontSize: FONT_SIZE,
         lineHeight: LINE_HEIGHT
@@ -101,11 +105,21 @@ interface EditableResumePreviewProps {
   skills: SkillsType;
   showIcons: ShowIconsType;
   onPersonalInfoChange: (field: keyof PersonalInfoType, value: string) => void;
-  onEducationChange: (index: number, field: keyof EducationType, value: string) => void;
+  onEducationChange: (index: number, field: keyof EducationType, value: string | boolean) => void;
   onWorkExperienceChange: (index: number, field: keyof WorkExperienceType, value: string | string[]) => void;
   onProjectChange: (index: number, field: keyof ProjectType, value: string | string[]) => void;
   onSkillsChange: (field: keyof SkillsType, value: string) => void;
   onToggleIcon: (field: keyof ShowIconsType) => void;
+  onRemoveEducation: (index: number) => void;
+  onRemoveWorkExperience: (index: number) => void;
+  onRemoveProject: (index: number) => void;
+  onAddEducation: () => void;
+  onAddWorkExperience: () => void;
+  onAddProject: () => void;
+  onAddWorkDetail: (index: number) => void;
+  onAddProjectDetail: (index: number) => void;
+  onRemoveWorkDetail: (workIndex: number, detailIndex: number) => void;
+  onRemoveProjectDetail: (projectIndex: number, detailIndex: number) => void;
 }
 
 interface SectionMeasurements {
@@ -128,44 +142,22 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
   onProjectChange,
   onSkillsChange,
   onToggleIcon,
+  onRemoveEducation,
+  onRemoveWorkExperience,
+  onRemoveProject,
+  onAddEducation,
+  onAddWorkExperience,
+  onAddProject,
+  onAddWorkDetail,
+  onAddProjectDetail,
+  onRemoveWorkDetail,
+  onRemoveProjectDetail,
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [verticalScale, setVerticalScale] = useState(1);
+  const [showHeaderItems, setShowHeaderItems] = useState(false);
+  const [showEducationItems, setShowEducationItems] = useState(false);
   
-  useEffect(() => {
-    const adjustVerticalSpacing = () => {
-      if (!contentRef.current) return;
-      
-      const contentHeight = contentRef.current.scrollHeight;
-      const availableHeight = PAGE_HEIGHT - (MARGIN_TOP + MARGIN_BOTTOM);
-      
-      if (contentHeight > availableHeight) {
-        const scale = availableHeight / contentHeight;
-        setVerticalScale(Math.max(0.7, scale)); // Allow up to 30% compression
-      } else {
-        setVerticalScale(1);
-      }
-    };
-
-    adjustVerticalSpacing();
-    window.addEventListener('resize', adjustVerticalSpacing);
-    return () => window.removeEventListener('resize', adjustVerticalSpacing);
-  }, [personalInfo, education, workExperience, projects, skills]);
-
-  // Calculate dynamic margins based on scale
-  const getSectionMargin = () => {
-    return Math.max(MIN_SECTION_MARGIN, MAX_SECTION_MARGIN * verticalScale);
-  };
-
-  const getItemMargin = () => {
-    return Math.max(MIN_ITEM_MARGIN, MAX_ITEM_MARGIN * verticalScale);
-  };
-
-  const getListMargin = () => {
-    return Math.max(MIN_LIST_MARGIN, MAX_LIST_MARGIN * verticalScale);
-  };
-
-  // Update base section and item classes
+  // Remove vertical scaling logic since we want content to flow naturally
   const sectionClass = `mb-[${SECTION_SPACING}]`;
   const itemClass = `mb-[${ITEM_SPACING}]`;
   const listItemClass = cn(
@@ -174,73 +166,127 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
     `mb-[${LIST_SPACING}]`
   );
 
-  // Render functions
+  // Update header handlers
+  const handleHeaderMouseEnter = () => {
+    setShowHeaderItems(true);
+  };
+
+  const handleHeaderMouseLeave = () => {
+    setShowHeaderItems(false);
+  };
+
+  const renderHeaderItem = (
+    field: keyof ShowIconsType,
+    content: React.ReactNode,
+    separator?: boolean
+  ) => {
+    if (!personalInfo[field]) return null;
+
+    return (
+      <>
+        <Popover>
+          <PopoverTrigger asChild>
+            <div 
+              className={cn(
+                "relative",
+                !showIcons[field] && !showHeaderItems && "hidden",
+                !showIcons[field] && showHeaderItems && "opacity-40"
+              )}
+            >
+              {content}
+            </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onToggleIcon(field)}
+              className="text-xs"
+            >
+              <EyeOff className="h-3 w-3 mr-1" />
+              {showIcons[field] ? 'Hide' : 'Show'} {field}
+            </Button>
+          </PopoverContent>
+        </Popover>
+        {separator && (
+          <span className={cn(
+            "text-black",
+            (!showIcons[field] && !showHeaderItems) && "hidden",
+            (!showIcons[field] && showHeaderItems) && "opacity-40"
+          )}>|</span>
+        )}
+      </>
+    );
+  };
+
   const renderHeader = () => (
-    <div className="text-center mb-3 text-black">
-      <EditableText
-        value={personalInfo.name}
-        onChange={(value: string) => onPersonalInfoChange('name', value)}
-        className="text-[28pt] font-bold tracking-[0.05em] mb-0.5 capitalize text-black"
-        placeholder="Your Name"
-      />
-      <div className="flex justify-center items-center gap-2 text-sm text-black">
-        {personalInfo.email && (
-          <>
+    <div 
+      className="relative pt-4 pb-8 -mt-4 -mb-8"
+      onMouseEnter={handleHeaderMouseEnter}
+      onMouseLeave={handleHeaderMouseLeave}
+    >
+      <div className="text-center mb-3 text-black">
+        <EditableText
+          value={personalInfo.name}
+          onChange={(value: string) => onPersonalInfoChange('name', value)}
+          className="text-[28pt] font-bold tracking-[0.05em] mb-0.5 capitalize text-black"
+          placeholder="Your Name"
+        />
+        <div className="flex justify-center items-center gap-2 text-sm text-black">
+          {renderHeaderItem('email', 
             <EditableText
               value={personalInfo.email}
               onChange={(value: string) => onPersonalInfoChange('email', value)}
               placeholder="Email"
               className="hover:underline text-black"
-            />
-            {(personalInfo.phone || personalInfo.github || personalInfo.linkedin || personalInfo.website) && (
-              <span className="text-black">|</span>
-            )}
-          </>
-        )}
-        {personalInfo.phone && (
-          <>
+            />,
+            !!(personalInfo.phone || personalInfo.github || personalInfo.linkedin || personalInfo.website)
+          )}
+          
+          {renderHeaderItem('phone',
             <EditableText
               value={personalInfo.phone}
               onChange={(value: string) => onPersonalInfoChange('phone', value)}
               placeholder="Phone"
-            />
-            {(personalInfo.github || personalInfo.linkedin || personalInfo.website) && (
-              <span className="text-black">|</span>
-            )}
-          </>
-        )}
-        {personalInfo.github && (
-          <>
+            />,
+            !!(personalInfo.github || personalInfo.linkedin || personalInfo.website)
+          )}
+          
+          {renderHeaderItem('github',
+            <span className="text-black">
+              github.com/
+              <EditableText
+                value={personalInfo.github}
+                onChange={(value: string) => onPersonalInfoChange('github', value)}
+                placeholder="GitHub"
+                className="hover:underline text-black inline"
+              />
+            </span>,
+            !!(personalInfo.linkedin || personalInfo.website)
+          )}
+          
+          {renderHeaderItem('linkedin',
+            <span className="text-black">
+              linkedin.com/in/
+              <EditableText
+                value={personalInfo.linkedin}
+                onChange={(value: string) => onPersonalInfoChange('linkedin', value)}
+                placeholder="LinkedIn"
+                className="hover:underline text-black inline"
+              />
+            </span>,
+            !!personalInfo.website
+          )}
+          
+          {renderHeaderItem('website',
             <EditableText
-              value={personalInfo.github}
-              onChange={(value: string) => onPersonalInfoChange('github', value)}
-              placeholder="GitHub"
+              value={personalInfo.website}
+              onChange={(value: string) => onPersonalInfoChange('website', value)}
+              placeholder="Website"
               className="hover:underline text-black"
             />
-            {(personalInfo.linkedin || personalInfo.website) && (
-              <span className="text-black">|</span>
-            )}
-          </>
-        )}
-        {personalInfo.linkedin && (
-          <>
-            <EditableText
-              value={personalInfo.linkedin}
-              onChange={(value: string) => onPersonalInfoChange('linkedin', value)}
-              placeholder="LinkedIn"
-              className="hover:underline text-black"
-            />
-            {personalInfo.website && <span className="text-black">|</span>}
-          </>
-        )}
-        {personalInfo.website && (
-          <EditableText
-            value={personalInfo.website}
-            onChange={(value: string) => onPersonalInfoChange('website', value)}
-            placeholder="Website"
-            className="hover:underline text-black"
-          />
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
@@ -256,69 +302,203 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
     </h2>
   );
 
+  const renderAddButton = (onClick: () => void, label: string) => (
+    <div className="group/add-hover pt-2">
+      <div className="h-0 group-hover/add-hover:h-10 overflow-hidden transition-all duration-200">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full opacity-0 group-hover/add-hover:opacity-100 border-dashed border-gray-300 hover:border-gray-400 text-gray-500 hover:text-gray-700"
+          onClick={onClick}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          {label}
+        </Button>
+      </div>
+    </div>
+  );
+
+  const renderAddDetailButton = (onClick: () => void) => (
+    <li className="list-none h-0 group-hover:h-8 overflow-hidden transition-all duration-200">
+      <div className="h-0 group-hover:h-8 flex items-center">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-full text-gray-400 hover:text-gray-700 opacity-0 group-hover:opacity-100 flex items-center justify-center"
+          onClick={onClick}
+        >
+          <Plus className="h-3 w-3 mr-1" />
+          Add bullet point
+        </Button>
+      </div>
+    </li>
+  );
+
   const renderEducation = () => (
-    <section className={`${sectionClass} text-black`}>
-      {renderSection('Education')}
-      <div className="pl-[0.15in]">
-        {education.map((edu, index) => (
-          <div key={index} className={itemClass}>
-            <div className="flex justify-between items-baseline mb-0">
-              <EditableText
-                value={edu.school}
-                onChange={(value: string) => onEducationChange(index, 'school', value)}
-                className="font-bold text-[12pt] text-black"
-                placeholder="School Name"
-              />
-              <EditableText
-                value={edu.location}
-                onChange={(value: string) => onEducationChange(index, 'location', value)}
-                placeholder="Location"
-                className="text-right italic text-black"
-              />
-            </div>
-            <div className="flex justify-between items-baseline mb-0">
-              <EditableText
-                value={edu.degree}
-                onChange={(value: string) => onEducationChange(index, 'degree', value)}
-                className="italic text-black"
-                placeholder="Degree"
-              />
-              <div className="flex gap-1 italic text-right text-black">
-                <InlineMonthPicker
-                  value={edu.startDate}
-                  onChange={(value: string) => onEducationChange(index, 'startDate', value)}
-                  placeholder="Start Date"
-                />
-                <span>-</span>
-                <InlineMonthPicker
-                  value={edu.endDate}
-                  onChange={(value: string) => onEducationChange(index, 'endDate', value)}
-                  placeholder="End Date"
-                />
-              </div>
-            </div>
-            {edu.showCoursework && edu.coursework && (
-              <div className="mt-0.5">
-                <span className="font-bold text-black">Relevant Coursework: </span>
+    <section 
+      className={`${sectionClass} text-black relative`}
+      onMouseEnter={() => setShowEducationItems(true)}
+      onMouseLeave={() => setShowEducationItems(false)}
+    >
+      <div className="relative">
+        {renderSection('Education')}
+        <div className="pl-[0.15in]">
+          {education.map((edu, index) => (
+            <div 
+              key={index} 
+              className={`${itemClass} group relative`}
+            >
+              <Button
+                variant="outline"
+                size="sm"
+                className="absolute -left-10 top-0 h-full opacity-0 group-hover:opacity-100 border border-red-200 hover:border-red-500 hover:bg-red-50 text-red-500 hover:text-red-700 rounded-sm px-2 mr-2"
+                onClick={() => onRemoveEducation(index)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+              <div className="flex justify-between items-baseline mb-0">
                 <EditableText
-                  value={edu.coursework}
-                  onChange={(value: string) => onEducationChange(index, 'coursework', value)}
-                  placeholder="Relevant coursework"
+                  value={edu.school}
+                  onChange={(value: string) => onEducationChange(index, 'school', value)}
+                  className="font-bold text-[12pt] text-black"
+                  placeholder="School Name"
+                />
+                <EditableText
+                  value={edu.location}
+                  onChange={(value: string) => onEducationChange(index, 'location', value)}
+                  placeholder="Location"
+                  className="text-right italic text-black"
                 />
               </div>
-            )}
-          </div>
-        ))}
+              <div className="flex justify-between items-baseline mb-0">
+                <EditableText
+                  value={edu.degree}
+                  onChange={(value: string) => onEducationChange(index, 'degree', value)}
+                  className="italic text-black"
+                  placeholder="Degree"
+                />
+                <div className="flex gap-1 italic text-right text-black">
+                  <InlineMonthPicker
+                    value={edu.startDate}
+                    onChange={(value: string) => onEducationChange(index, 'startDate', value)}
+                    placeholder="Start Date"
+                  />
+                  <span>-</span>
+                  <InlineMonthPicker
+                    value={edu.endDate}
+                    onChange={(value: string) => onEducationChange(index, 'endDate', value)}
+                    placeholder="End Date"
+                  />
+                </div>
+              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <div 
+                    className={cn(
+                      "mt-0.5",
+                      !edu.showCoursework && !showEducationItems && "hidden",
+                      !edu.showCoursework && showEducationItems && "opacity-40"
+                    )}
+                  >
+                    <span className="font-bold text-black">Relevant Coursework: </span>
+                    <EditableText
+                      value={edu.coursework}
+                      onChange={(value: string) => onEducationChange(index, 'coursework', value)}
+                      placeholder="Relevant coursework"
+                      className="text-black"
+                    />
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-2" sideOffset={5}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onEducationChange(index, 'showCoursework', !edu.showCoursework)}
+                    className="text-xs"
+                  >
+                    <EyeOff className="h-3 w-3 mr-1" />
+                    {edu.showCoursework ? 'Hide' : 'Show'} coursework
+                  </Button>
+                </PopoverContent>
+              </Popover>
+            </div>
+          ))}
+          {renderAddButton(onAddEducation, "Add Education")}
+        </div>
       </div>
     </section>
   );
 
+  const renderWorkExperienceDetails = (work: WorkExperienceType, index: number) => (
+    <ul className="list-disc pl-[calc(0.15in+0.15in)] space-y-[0.1rem] leading-[1.2] text-black pb-2">
+      {work.details.map((detail, detailIndex) => (
+        <li key={detailIndex} className="group/bullet relative">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute -left-7 top-0 opacity-0 group-hover/bullet:opacity-100 h-6 w-6 p-0"
+            onClick={() => onRemoveWorkDetail(index, detailIndex)}
+          >
+            <X className="h-3 w-3 text-red-500" />
+          </Button>
+          <EditableText
+            value={detail}
+            onChange={(value: string) => {
+              const newDetails = [...work.details];
+              newDetails[detailIndex] = value;
+              onWorkExperienceChange(index, 'details', newDetails);
+            }}
+            placeholder="Add work detail"
+            className="text-black"
+          />
+        </li>
+      ))}
+      {renderAddDetailButton(() => onAddWorkDetail(index))}
+    </ul>
+  );
+
+  const renderProjectDetails = (project: ProjectType, index: number) => (
+    <ul className="list-disc pl-[calc(0.15in+0.15in)] space-y-[0.1rem] leading-[1.2] text-black pb-2">
+      {project.details.map((detail, detailIndex) => (
+        <li key={detailIndex} className="group/bullet relative">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute -left-7 top-0 opacity-0 group-hover/bullet:opacity-100 h-6 w-6 p-0"
+            onClick={() => onRemoveProjectDetail(index, detailIndex)}
+          >
+            <X className="h-3 w-3 text-red-500" />
+          </Button>
+          <EditableText
+            value={detail}
+            onChange={(value: string) => {
+              const newDetails = [...project.details];
+              newDetails[detailIndex] = value;
+              onProjectChange(index, 'details', newDetails);
+            }}
+            placeholder="Add project detail"
+            className="text-black"
+          />
+        </li>
+      ))}
+      {renderAddDetailButton(() => onAddProjectDetail(index))}
+    </ul>
+  );
+
   const renderExperience = () => (
-    <section className={`${sectionClass} text-black`}>
+    <section className={`${sectionClass} text-black group/experience`}>
       {renderSection('Experience')}
       <div className="pl-[0.15in]">
         {workExperience.map((work, index) => (
-          <div key={index} className={itemClass}>
+          <div key={index} className={`${itemClass} group relative`}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="absolute -left-10 top-0 h-full opacity-0 group-hover:opacity-100 border border-red-200 hover:border-red-500 hover:bg-red-50 text-red-500 hover:text-red-700 rounded-sm px-2 mr-2"
+              onClick={() => onRemoveWorkExperience(index)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
             <div className="flex justify-between items-baseline mb-0">
               <EditableText
                 value={work.position}
@@ -356,24 +536,10 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
                 className="text-right italic text-black"
               />
             </div>
-            <ul className="list-disc pl-[calc(0.15in+0.15in)] space-y-[0.1rem] leading-[1.2] text-black">
-              {work.details.map((detail, detailIndex) => (
-                <li key={detailIndex}>
-                  <EditableText
-                    value={detail}
-                    onChange={(value: string) => {
-                      const newDetails = [...work.details];
-                      newDetails[detailIndex] = value;
-                      onWorkExperienceChange(index, 'details', newDetails);
-                    }}
-                    placeholder="Add work detail"
-                    className="text-black"
-                  />
-                </li>
-              ))}
-            </ul>
+            {renderWorkExperienceDetails(work, index)}
           </div>
         ))}
+        {renderAddButton(onAddWorkExperience, "Add Experience")}
       </div>
     </section>
   );
@@ -383,7 +549,15 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
       {renderSection('Projects')}
       <div className="pl-[0.15in]">
         {projects.map((project, index) => (
-          <div key={index} className={itemClass}>
+          <div key={index} className={`${itemClass} group relative`}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="absolute -left-10 top-0 h-full opacity-0 group-hover:opacity-100 border border-red-200 hover:border-red-500 hover:bg-red-50 text-red-500 hover:text-red-700 rounded-sm px-2 mr-2"
+              onClick={() => onRemoveProject(index)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
             <div className="flex justify-between items-baseline mb-0.5">
               <div className="flex items-baseline gap-2">
                 <EditableText
@@ -416,24 +590,10 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
                 </div>
               )}
             </div>
-            <ul className="list-disc pl-[calc(0.15in+0.15in)] space-y-[0.1rem] leading-[1.2] text-black">
-              {project.details.map((detail, detailIndex) => (
-                <li key={detailIndex}>
-                  <EditableText
-                    value={detail}
-                    onChange={(value: string) => {
-                      const newDetails = [...project.details];
-                      newDetails[detailIndex] = value;
-                      onProjectChange(index, 'details', newDetails);
-                    }}
-                    placeholder="Add project detail"
-                    className="text-black"
-                  />
-                </li>
-              ))}
-            </ul>
+            {renderProjectDetails(project, index)}
           </div>
         ))}
+        {renderAddButton(onAddProject, "Add Project")}
       </div>
     </section>
   );
@@ -507,34 +667,15 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
       {renderSettingsMenu()}
       
       <div className="flex flex-col items-center py-8 px-4">
-        <div 
-          className="bg-white border border-gray-200 shadow-md relative"
-          style={{
-            width: `${PAGE_WIDTH}px`,
-            height: `${PAGE_HEIGHT}px`,
-            paddingLeft: `${MARGIN_SIDE - (0.5 * INCH_TO_PX)}px`,
-            paddingRight: `${MARGIN_SIDE - (0.5 * INCH_TO_PX)}px`,
-            paddingTop: `${MARGIN_TOP - (0.5 * INCH_TO_PX)}px`,
-            paddingBottom: `${MARGIN_BOTTOM}px`,
-            overflow: 'hidden'
-          }}
-        >
-          <div 
-            ref={contentRef} 
-            className="font-[times] text-black"
-            style={{ 
-              fontSize: FONT_SIZE,
-              lineHeight: LINE_HEIGHT,
-              height: '100%'
-            }}
-          >
+        <Page>
+          <div className="space-y-4">
             {renderHeader()}
             {renderEducation()}
             {renderExperience()}
             {renderProjects()}
             {renderSkills()}
           </div>
-        </div>
+        </Page>
       </div>
     </div>
   );

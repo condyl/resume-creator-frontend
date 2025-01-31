@@ -547,10 +547,14 @@ const Home: React.FC = () => {
     setPersonalInfo(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleEducationChange = (index: number, field: keyof EducationType, value: string) => {
+  const handleEducationChange = (index: number, field: keyof EducationType, value: string | boolean) => {
     setEducation(prev => {
       const newEducation = [...prev];
-      newEducation[index] = { ...newEducation[index], [field]: value };
+      if (field === 'showCoursework') {
+        newEducation[index] = { ...newEducation[index], [field]: value as boolean };
+      } else {
+        newEducation[index] = { ...newEducation[index], [field]: value as string };
+      }
       return newEducation;
     });
   };
@@ -577,6 +581,109 @@ const Home: React.FC = () => {
 
   const handleToggleIcon = (field: keyof ShowIconsType) => {
     setShowIcons(prev => ({ ...prev, [field]: !prev[field] }));
+  };
+
+  const handleRemoveEducation = (index: number) => {
+    setEducation(prev => prev.filter((_, i) => i !== index));
+    setIsDirty(true);
+  };
+
+  const handleRemoveWorkExperience = (index: number) => {
+    setWorkExperience(prev => prev.filter((_, i) => i !== index));
+    setIsDirty(true);
+  };
+
+  const handleRemoveProject = (index: number) => {
+    setProjects(prev => prev.filter((_, i) => i !== index));
+    setIsDirty(true);
+  };
+
+  const handleAddEducation = () => {
+    setEducation(prev => [...prev, {
+      school: '',
+      degree: '',
+      program: '',
+      location: '',
+      coursework: '',
+      startDate: '',
+      endDate: '',
+      showCoursework: false
+    }]);
+    setIsDirty(true);
+  };
+
+  const handleAddWorkExperience = () => {
+    setWorkExperience(prev => [...prev, {
+      company: '',
+      position: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      details: ['']
+    }]);
+    setIsDirty(true);
+  };
+
+  const handleAddProject = () => {
+    setProjects(prev => [...prev, {
+      name: '',
+      technologies: '',
+      liveUrl: '',
+      githubUrl: '',
+      details: [''],
+      startDate: '',
+      endDate: '',
+      showDate: true
+    }]);
+    setIsDirty(true);
+  };
+
+  const handleAddWorkDetail = (index: number) => {
+    setWorkExperience(prev => {
+      const newWorkExperience = [...prev];
+      newWorkExperience[index] = {
+        ...newWorkExperience[index],
+        details: [...newWorkExperience[index].details, '']
+      };
+      return newWorkExperience;
+    });
+    setIsDirty(true);
+  };
+
+  const handleAddProjectDetail = (index: number) => {
+    setProjects(prev => {
+      const newProjects = [...prev];
+      newProjects[index] = {
+        ...newProjects[index],
+        details: [...newProjects[index].details, '']
+      };
+      return newProjects;
+    });
+    setIsDirty(true);
+  };
+
+  const handleRemoveWorkDetail = (workIndex: number, detailIndex: number) => {
+    setWorkExperience(prev => {
+      const newWorkExperience = [...prev];
+      newWorkExperience[workIndex] = {
+        ...newWorkExperience[workIndex],
+        details: newWorkExperience[workIndex].details.filter((_, i) => i !== detailIndex)
+      };
+      return newWorkExperience;
+    });
+    setIsDirty(true);
+  };
+
+  const handleRemoveProjectDetail = (projectIndex: number, detailIndex: number) => {
+    setProjects(prev => {
+      const newProjects = [...prev];
+      newProjects[projectIndex] = {
+        ...newProjects[projectIndex],
+        details: newProjects[projectIndex].details.filter((_, i) => i !== detailIndex)
+      };
+      return newProjects;
+    });
+    setIsDirty(true);
   };
 
   return (
@@ -643,6 +750,16 @@ const Home: React.FC = () => {
           onProjectChange={handleProjectChange}
           onSkillsChange={handleSkillsChange}
           onToggleIcon={handleToggleIcon}
+          onRemoveEducation={handleRemoveEducation}
+          onRemoveWorkExperience={handleRemoveWorkExperience}
+          onRemoveProject={handleRemoveProject}
+          onAddEducation={handleAddEducation}
+          onAddWorkExperience={handleAddWorkExperience}
+          onAddProject={handleAddProject}
+          onAddWorkDetail={handleAddWorkDetail}
+          onAddProjectDetail={handleAddProjectDetail}
+          onRemoveWorkDetail={handleRemoveWorkDetail}
+          onRemoveProjectDetail={handleRemoveProjectDetail}
         />
       </div>
     </main>
