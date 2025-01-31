@@ -18,12 +18,12 @@ import ReactDOM from 'react-dom/client';
 const INCH_TO_PX = 96; // Standard 96 DPI
 const PAGE_WIDTH = 8.5 * INCH_TO_PX;
 const PAGE_HEIGHT = 11 * INCH_TO_PX;
-const MARGIN_SIDE = 0.95 * INCH_TO_PX;
+const MARGIN_SIDE = 0.8 * INCH_TO_PX;
 const MARGIN_TOP = 0.8 * INCH_TO_PX;
 const MARGIN_BOTTOM = 0.5 * INCH_TO_PX;
 const BULLET_INDENT = "0.15in"; // Matches LaTeX template's leftmargin
-const LINE_HEIGHT = 1.2; // Tighter line height to match PDF
-const FONT_SIZE = "12pt"; // Increased from 11pt to match visual size of LaTeX
+const LINE_HEIGHT = 1.15; // Tighter line height to match PDF
+const FONT_SIZE = "11.5pt"; // Increased from 11pt to match visual size of LaTeX
 
 // Constants for vertical spacing
 const MAX_SECTION_MARGIN = 16; // maximum margin between sections in pixels
@@ -321,23 +321,9 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
           <div key={index} className={itemClass}>
             <div className="flex justify-between items-baseline mb-0">
               <EditableText
-                value={work.company}
-                onChange={(value: string) => onWorkExperienceChange(index, 'company', value)}
-                className="font-bold text-black"
-                placeholder="Company Name"
-              />
-              <EditableText
-                value={work.location}
-                onChange={(value: string) => onWorkExperienceChange(index, 'location', value)}
-                placeholder="Location"
-                className="text-right text-black"
-              />
-            </div>
-            <div className="flex justify-between items-baseline mb-0.5">
-              <EditableText
                 value={work.position}
                 onChange={(value: string) => onWorkExperienceChange(index, 'position', value)}
-                className="italic text-black"
+                className="font-bold text-black"
                 placeholder="Position"
               />
               <div className="flex gap-1 italic text-right text-black">
@@ -355,6 +341,20 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
                   className="text-black"
                 />
               </div>
+            </div>
+            <div className="flex justify-between items-baseline mb-0.5">
+              <EditableText
+                value={work.company}
+                onChange={(value: string) => onWorkExperienceChange(index, 'company', value)}
+                className="italic text-black"
+                placeholder="Company Name"
+              />
+              <EditableText
+                value={work.location}
+                onChange={(value: string) => onWorkExperienceChange(index, 'location', value)}
+                placeholder="Location"
+                className="text-right italic text-black"
+              />
             </div>
             <ul className="list-disc pl-[calc(0.15in+0.15in)] space-y-[0.1rem] leading-[1.2] text-black">
               {work.details.map((detail, detailIndex) => (
@@ -392,6 +392,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
                   className="font-bold text-black"
                   placeholder="Project Name"
                 />
+                <span> | </span>
                 <EditableText
                   value={project.technologies}
                   onChange={(value: string) => onProjectChange(index, 'technologies', value)}
