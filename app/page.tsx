@@ -14,7 +14,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Button } from '@/components/ui/button';
-import { Loader2, Download } from 'lucide-react';
+import { Loader2, Download, FileCode, UserCircle } from 'lucide-react';
 import { BASE_URL } from '@/lib/constants';
 import PDFViewer from '@/components/pdf-viewer';
 import { pdfjs } from 'react-pdf';
@@ -26,8 +26,9 @@ import { ResumeStatusBar } from "@/components/resume-status-bar"
 import { SectionProgress } from "@/components/section-progress"
 import { supabase } from '@/lib/supabase';
 import { DeleteAccountDialog } from "@/components/delete-account-dialog"
-import { UserCircle } from 'lucide-react'
 import Link from 'next/link'
+import { EditableResumePreview } from '@/components/editable-resume-preview';
+import { parseISO, format } from 'date-fns';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -98,7 +99,7 @@ const Home: React.FC = () => {
   const [skills, setSkills] = useState<SkillsType>({ languages: '', frameworks: '', tools: '' });
   const [resumeUrl, setResumeUrl] = useState('/blank.pdf');
   const [latexSource, setLatexSource] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
   const [isSlideoutOpen, setIsSlideoutOpen] = useState(false);
@@ -215,8 +216,8 @@ const Home: React.FC = () => {
     if (section === 'projects') setProjects(updatedSection as ProjectType[]);
   };
 
-  const handleSubmit = async () => {
-    setLoading(true);
+  const handleDownloadPDF = async () => {
+    setIsLoading(true);
     setError('');
 
     try {
@@ -224,9 +225,12 @@ const Home: React.FC = () => {
       const formatDate = (dateStr: string) => {
         if (!dateStr) return '';
         if (dateStr === 'Present') return 'Present';
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) return '';
-        return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        try {
+          const date = parseISO(dateStr);
+          return format(date, 'MMM yyyy');
+        } catch {
+          return dateStr;
+        }
       };
 
       const formattedEducation = education.map(edu => ({
@@ -238,7 +242,7 @@ const Home: React.FC = () => {
         dates: `${formatDate(work.startDate)} - ${formatDate(work.endDate)}`
       }));
 
-      // First request for PDF
+      // Request for PDF
       const pdfResponse = await axios.post(`${BASE_URL}/api/generate-resume`, {
         personalInfo,
         education: formattedEducation.map(edu => ({
@@ -251,7 +255,17 @@ const Home: React.FC = () => {
         showIcons
       }, { responseType: 'blob' });
 
-      // Second request for LaTeX source
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([pdfResponse.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'resume.pdf');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      // Also update the LaTeX source for the "Download LaTeX" button
       const latexResponse = await axios.post(`${BASE_URL}/api/generate-resume`, {
         personalInfo,
         education: formattedEducation.map(edu => ({
@@ -264,15 +278,12 @@ const Home: React.FC = () => {
         showIcons,
         format: 'latex'
       });
-
-      const url = window.URL.createObjectURL(new Blob([pdfResponse.data], { type: 'application/pdf' }));
-      setResumeUrl(url);
       setLatexSource(latexResponse.data.latex);
     } catch (err) {
       setError('Failed to generate resume.');
       console.error(err);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -326,7 +337,7 @@ const Home: React.FC = () => {
     setIsDirty(false);
 
     // Automatically generate the resume
-    setLoading(true);
+    setIsLoading(true);
     setError('');
 
     try {
@@ -382,7 +393,7 @@ const Home: React.FC = () => {
       setError('Failed to generate resume.');
       console.error(err);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -532,194 +543,124 @@ const Home: React.FC = () => {
     setIsDirty(true);
   };
 
+  const handlePersonalInfoChange = (field: keyof PersonalInfoType, value: string) => {
+    setPersonalInfo(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleEducationChange = (index: number, field: keyof EducationType, value: string) => {
+    setEducation(prev => {
+      const newEducation = [...prev];
+      newEducation[index] = { ...newEducation[index], [field]: value };
+      return newEducation;
+    });
+  };
+
+  const handleWorkExperienceChange = (index: number, field: keyof WorkExperienceType, value: string | string[]) => {
+    setWorkExperience(prev => {
+      const newWorkExperience = [...prev];
+      newWorkExperience[index] = { ...newWorkExperience[index], [field]: value };
+      return newWorkExperience;
+    });
+  };
+
+  const handleProjectChange = (index: number, field: keyof ProjectType, value: string | string[]) => {
+    setProjects(prev => {
+      const newProjects = [...prev];
+      newProjects[index] = { ...newProjects[index], [field]: value };
+      return newProjects;
+    });
+  };
+
+  const handleSkillsChange = (field: keyof SkillsType, value: string) => {
+    setSkills(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleToggleIcon = (field: keyof ShowIconsType) => {
+    setShowIcons(prev => ({ ...prev, [field]: !prev[field] }));
+  };
+
   return (
-    <div className="container mx-auto p-2 sm:p-4 flex flex-col md:flex-row">
-      <div className="pr-0 md:pr-4 w-full md:w-1/2">
-        <div className="rounded-lg border bg-card">
-          <ResumeStatusBar
-            currentResume={currentResume}
-            lastSaved={lastSaved}
-            isDirty={isDirty}
-          />
-          <form onSubmit={(e) => e.preventDefault()} className="space-y-4 p-2 sm:p-4">
-            <div className="flex flex-col sm:flex-row gap-2 mb-4">
-              {user && (
+    <main className="min-h-screen bg-background">
+      <div className="container mx-auto py-8">
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center gap-4">
+            {user && (
+              <>
+                <SaveResumeDialog
+                  onSave={handleSaveResume}
+                  resumeData={{
+                    name: currentResume?.name || '',
+                    personal_info: personalInfo,
+                    education,
+                    work_experience: workExperience,
+                    projects,
+                    skills,
+                    show_icons: showIcons
+                  }}
+                  currentResume={currentResume}
+                />
+                <SavedResumesDialog onLoad={handleLoadResume} />
+              </>
+            )}
+            <Button
+              variant="outline"
+              onClick={handleDownloadPDF}
+              disabled={isLoading}
+            >
+              {isLoading ? (
                 <>
-                  <SaveResumeDialog
-                    onSave={handleSaveResume}
-                    resumeData={{
-                      name: currentResume?.name || '',
-                      personal_info: personalInfo,
-                      education,
-                      work_experience: workExperience,
-                      projects,
-                      skills,
-                      show_icons: showIcons
-                    }}
-                    currentResume={currentResume}
-                  />
-                  <SavedResumesDialog onLoad={handleLoadResume} />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download PDF
                 </>
               )}
-            </div>
-            <Accordion type="single" collapsible className="space-y-4">
-              <AccordionItem value="personal-info" className="border rounded-lg">
-                <AccordionTrigger className="px-4 [&[data-state=open]>div]:mb-2">
-                  <div className="flex flex-col w-full">
-                    <div className="flex items-center justify-between w-full">
-                      <span>Personal Information</span>
-                      <SectionProgress {...calculateProgress('personalInfo')} className="w-32" />
-                    </div>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4">
-                  <PersonalInfo personalInfo={personalInfo} showIcons={showIcons} toggleIcon={toggleIcon} handleChange={handleChange} />
-                </AccordionContent>
-              </AccordionItem>
-              
-              <AccordionItem value="education" className="border rounded-lg">
-                <AccordionTrigger className="px-4 [&[data-state=open]>div]:mb-2">
-                  <div className="flex flex-col w-full">
-                    <div className="flex items-center justify-between w-full">
-                      <span>Education</span>
-                      <SectionProgress {...calculateProgress('education')} className="w-32" />
-                    </div>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4">
-                  <Education 
-                    education={education} 
-                    handleChange={handleChange} 
-                    removeField={removeField} 
-                    addField={addField}
-                    onReorder={handleEducationReorder}
-                  />
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="work-experience" className="border rounded-lg">
-                <AccordionTrigger className="px-4 [&[data-state=open]>div]:mb-2">
-                  <div className="flex flex-col w-full">
-                    <div className="flex items-center justify-between w-full">
-                      <span>Work Experience</span>
-                      <SectionProgress {...calculateProgress('workExperience')} className="w-32" />
-                    </div>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4">
-                  <WorkExperience 
-                    workExperience={workExperience} 
-                    handleChange={handleChange} 
-                    handleDetailChange={handleDetailChange} 
-                    removeField={removeField} 
-                    addField={addField} 
-                    addDetail={addDetail} 
-                    removeDetail={removeDetail}
-                    onReorder={handleWorkExperienceReorder}
-                  />
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="projects" className="border rounded-lg">
-                <AccordionTrigger className="px-4 [&[data-state=open]>div]:mb-2">
-                  <div className="flex flex-col w-full">
-                    <div className="flex items-center justify-between w-full">
-                      <span>Projects</span>
-                      <SectionProgress {...calculateProgress('projects')} className="w-32" />
-                    </div>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4">
-                  <Projects 
-                    projects={projects} 
-                    handleChange={handleChange} 
-                    handleDetailChange={handleDetailChange} 
-                    removeField={removeField} 
-                    addField={addField} 
-                    addDetail={addDetail} 
-                    removeDetail={removeDetail}
-                    onReorder={handleProjectsReorder}
-                  />
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="skills" className="border rounded-lg">
-                <AccordionTrigger className="px-4 [&[data-state=open]>div]:mb-2">
-                  <div className="flex flex-col w-full">
-                    <div className="flex items-center justify-between w-full">
-                      <span>Skills</span>
-                      <SectionProgress {...calculateProgress('skills')} className="w-32" />
-                    </div>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4">
-                  <Skills skills={skills} handleChange={handleChange} />
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-
-            <Button 
-              onClick={handleSubmit} 
-              disabled={loading} 
-              className="w-full"
-            >
-              {loading && <Loader2 className="animate-spin w-5 h-5 mr-2" />}
-              Generate Resume
             </Button>
-          </form>
-        </div>
-        {error && <p className="text-red-500 mt-4">{error}</p>}
-      </div>
-      {resumeUrl && (
-        <button
-          onClick={toggleSlideout}
-          className="fixed right-4 bottom-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded md:hidden"
-        >
-          View Resume
-        </button>
-      )}
-      <div className="pl-0 md:pl-4 w-full md:w-1/2 ml-0 md:ml-0.5 hidden md:block">
-        <div className="fixed top-10 right-0 h-[calc(100vh-10rem)] overflow-y-auto z-0" style={{ width: 'calc(50% - 2px)', maxWidth: '100vw' }}>
-          {resumeUrl && (
-            <div className="mt-4 w-full">
-              <PDFViewer 
-                url={resumeUrl} 
-                latexSource={latexSource}
-                onDownloadLatex={handleDownloadLatex}
-              />
+            <Button
+              variant="outline"
+              onClick={handleDownloadLatex}
+              disabled={!latexSource}
+            >
+              <FileCode className="mr-2 h-4 w-4" />
+              Download LaTeX
+            </Button>
+          </div>
+          {user ? (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                {user.email}
+              </span>
+              <DeleteAccountDialog />
             </div>
+          ) : (
+            <Link href="/login">
+              <Button variant="outline">
+                <UserCircle className="mr-2 h-4 w-4" />
+                Login
+              </Button>
+            </Link>
           )}
         </div>
+
+        <EditableResumePreview
+          personalInfo={personalInfo}
+          education={education}
+          workExperience={workExperience}
+          projects={projects}
+          skills={skills}
+          showIcons={showIcons}
+          onPersonalInfoChange={handlePersonalInfoChange}
+          onEducationChange={handleEducationChange}
+          onWorkExperienceChange={handleWorkExperienceChange}
+          onProjectChange={handleProjectChange}
+          onSkillsChange={handleSkillsChange}
+          onToggleIcon={handleToggleIcon}
+        />
       </div>
-      <div
-        className={`fixed top-0 right-0 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
-          isSlideoutOpen ? 'translate-x-0' : 'translate-x-full'
-        } md:hidden w-full`}
-        ref={containerRef}
-      >
-        <button
-          onClick={toggleSlideout}
-          className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-        >
-          Close
-        </button>
-        {resumeUrl && (
-          <div className="mt-16 w-full">
-            <PDFViewer 
-              url={resumeUrl} 
-              latexSource={latexSource}
-              onDownloadLatex={handleDownloadLatex}
-            />
-          </div>
-        )}
-        <button
-          onClick={() => setIsSlideoutOpen(false)}
-          className="absolute bottom-4 right-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-        >
-          Hide Resume
-        </button>
-      </div>
-    </div>
+    </main>
   );
 };
 

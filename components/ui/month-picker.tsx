@@ -11,7 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { format, parseISO } from "date-fns"
+import { format, parseISO, isValid } from "date-fns"
 import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -21,9 +21,19 @@ interface MonthPickerProps {
   placeholder?: string
   className?: string
   disabled?: boolean
+  allowPresent?: boolean
+  showIcon?: boolean
 }
 
-export function MonthPicker({ value, onChange, placeholder = "Select month...", className, disabled }: MonthPickerProps) {
+export function MonthPicker({ 
+  value, 
+  onChange, 
+  placeholder = "Select month...", 
+  className, 
+  disabled,
+  allowPresent = true,
+  showIcon = true
+}: MonthPickerProps) {
   const [viewDate, setViewDate] = useState(() => {
     const now = new Date()
     return new Date(now.getFullYear(), now.getMonth(), 1)
@@ -43,6 +53,33 @@ export function MonthPicker({ value, onChange, placeholder = "Select month...", 
     onChange(formattedDate)
   }
 
+  const handlePresentClick = () => {
+    onChange('Present')
+  }
+
+  const formatDisplayValue = (value: string) => {
+    if (!value) return placeholder
+    if (value === 'Present') return 'Present'
+    try {
+      const date = parseISO(value)
+      return isValid(date) ? format(date, 'MMM yyyy') : value
+    } catch {
+      return value
+    }
+  }
+
+  const isSelectedMonth = (monthIndex: number) => {
+    if (!value || value === 'Present') return false
+    try {
+      const date = parseISO(value)
+      return isValid(date) && 
+        date.getMonth() === monthIndex && 
+        date.getFullYear() === viewDate.getFullYear()
+    } catch {
+      return false
+    }
+  }
+
   const months = [
     "January", "February", "March", "April",
     "May", "June", "July", "August",
@@ -55,15 +92,15 @@ export function MonthPicker({ value, onChange, placeholder = "Select month...", 
         <Button
           variant="outline"
           className={cn(
-            "w-full justify-start text-left font-normal min-w-0",
+            "justify-start text-left font-normal whitespace-nowrap w-auto min-w-0",
             !value && "text-muted-foreground",
             className
           )}
           disabled={disabled}
         >
-          <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
-          <span className="truncate">
-            {value ? format(parseISO(value), 'MMMM yyyy') : placeholder}
+          {showIcon && <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />}
+          <span>
+            {formatDisplayValue(value)}
           </span>
         </Button>
       </PopoverTrigger>
@@ -97,9 +134,7 @@ export function MonthPicker({ value, onChange, placeholder = "Select month...", 
                 variant="outline"
                 className={cn(
                   "h-9",
-                  value && parseISO(value).getMonth() === index && 
-                  parseISO(value).getFullYear() === viewDate.getFullYear() && 
-                  "bg-primary text-primary-foreground hover:bg-primary/90"
+                  isSelectedMonth(index) && "bg-primary text-primary-foreground hover:bg-primary/90"
                 )}
                 onClick={() => handleMonthSelect(index)}
               >
@@ -107,6 +142,20 @@ export function MonthPicker({ value, onChange, placeholder = "Select month...", 
               </Button>
             ))}
           </div>
+          {allowPresent && (
+            <div className="mt-2 border-t pt-2">
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full",
+                  value === 'Present' && "bg-primary text-primary-foreground hover:bg-primary/90"
+                )}
+                onClick={handlePresentClick}
+              >
+                Present
+              </Button>
+            </div>
+          )}
         </div>
       </PopoverContent>
     </Popover>
