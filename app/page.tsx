@@ -628,21 +628,6 @@ const Home: React.FC = () => {
               Download LaTeX
             </Button>
           </div>
-          {user ? (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                {user.email}
-              </span>
-              <DeleteAccountDialog />
-            </div>
-          ) : (
-            <Link href="/login">
-              <Button variant="outline">
-                <UserCircle className="mr-2 h-4 w-4" />
-                Login
-              </Button>
-            </Link>
-          )}
         </div>
 
         <EditableResumePreview

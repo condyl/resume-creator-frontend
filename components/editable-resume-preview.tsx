@@ -46,7 +46,7 @@ interface PageProps {
 const Page: React.FC<PageProps> = ({ children, isLastPage = false }) => (
   <div 
     className={cn(
-      "bg-white border border-gray-200 shadow-md flex-shrink-0",
+      "bg-white border border-gray-200 shadow-md flex-shrink-0 text-black",
       isLastPage ? "mb-0" : "mb-8"
     )}
     style={{
@@ -60,7 +60,7 @@ const Page: React.FC<PageProps> = ({ children, isLastPage = false }) => (
     }}
   >
     <div 
-      className="font-[times]"
+      className="font-[times] text-black"
       style={{ 
         fontSize: FONT_SIZE,
         lineHeight: LINE_HEIGHT
@@ -176,24 +176,24 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
 
   // Render functions
   const renderHeader = () => (
-    <div className="text-center mb-3">
+    <div className="text-center mb-3 text-black">
       <EditableText
         value={personalInfo.name}
         onChange={(value: string) => onPersonalInfoChange('name', value)}
-        className="text-[28pt] font-bold tracking-[0.05em] mb-0.5 capitalize"
+        className="text-[28pt] font-bold tracking-[0.05em] mb-0.5 capitalize text-black"
         placeholder="Your Name"
       />
-      <div className="flex justify-center items-center gap-2 text-sm">
+      <div className="flex justify-center items-center gap-2 text-sm text-black">
         {personalInfo.email && (
           <>
             <EditableText
               value={personalInfo.email}
               onChange={(value: string) => onPersonalInfoChange('email', value)}
               placeholder="Email"
-              className="hover:underline"
+              className="hover:underline text-black"
             />
             {(personalInfo.phone || personalInfo.github || personalInfo.linkedin || personalInfo.website) && (
-              <span>|</span>
+              <span className="text-black">|</span>
             )}
           </>
         )}
@@ -205,7 +205,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
               placeholder="Phone"
             />
             {(personalInfo.github || personalInfo.linkedin || personalInfo.website) && (
-              <span>|</span>
+              <span className="text-black">|</span>
             )}
           </>
         )}
@@ -215,10 +215,10 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
               value={personalInfo.github}
               onChange={(value: string) => onPersonalInfoChange('github', value)}
               placeholder="GitHub"
-              className="hover:underline"
+              className="hover:underline text-black"
             />
             {(personalInfo.linkedin || personalInfo.website) && (
-              <span>|</span>
+              <span className="text-black">|</span>
             )}
           </>
         )}
@@ -228,9 +228,9 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
               value={personalInfo.linkedin}
               onChange={(value: string) => onPersonalInfoChange('linkedin', value)}
               placeholder="LinkedIn"
-              className="hover:underline"
+              className="hover:underline text-black"
             />
-            {personalInfo.website && <span>|</span>}
+            {personalInfo.website && <span className="text-black">|</span>}
           </>
         )}
         {personalInfo.website && (
@@ -238,7 +238,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
             value={personalInfo.website}
             onChange={(value: string) => onPersonalInfoChange('website', value)}
             placeholder="Website"
-            className="hover:underline"
+            className="hover:underline text-black"
           />
         )}
       </div>
@@ -247,7 +247,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
 
   const renderSection = (title: string) => (
     <h2 
-      className="text-[14pt] border-b border-black pb-0 mb-1"
+      className="text-[14pt] border-b border-black pb-0 mb-1 text-black"
       style={{
         fontVariant: 'small-caps'
       }}
@@ -257,7 +257,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
   );
 
   const renderEducation = () => (
-    <section className={sectionClass}>
+    <section className={`${sectionClass} text-black`}>
       {renderSection('Education')}
       <div className="pl-[0.15in]">
         {education.map((edu, index) => (
@@ -266,24 +266,24 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
               <EditableText
                 value={edu.school}
                 onChange={(value: string) => onEducationChange(index, 'school', value)}
-                className="font-bold text-[12pt]"
+                className="font-bold text-[12pt] text-black"
                 placeholder="School Name"
               />
               <EditableText
                 value={edu.location}
                 onChange={(value: string) => onEducationChange(index, 'location', value)}
                 placeholder="Location"
-                className="text-right italic"
+                className="text-right italic text-black"
               />
             </div>
             <div className="flex justify-between items-baseline mb-0">
               <EditableText
                 value={edu.degree}
                 onChange={(value: string) => onEducationChange(index, 'degree', value)}
-                className="italic"
+                className="italic text-black"
                 placeholder="Degree"
               />
-              <div className="flex gap-1 italic text-right">
+              <div className="flex gap-1 italic text-right text-black">
                 <InlineMonthPicker
                   value={edu.startDate}
                   onChange={(value: string) => onEducationChange(index, 'startDate', value)}
@@ -299,7 +299,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
             </div>
             {edu.showCoursework && edu.coursework && (
               <div className="mt-0.5">
-                <span className="font-bold">Relevant Coursework: </span>
+                <span className="font-bold text-black">Relevant Coursework: </span>
                 <EditableText
                   value={edu.coursework}
                   onChange={(value: string) => onEducationChange(index, 'coursework', value)}
@@ -314,7 +314,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
   );
 
   const renderExperience = () => (
-    <section className={sectionClass}>
+    <section className={`${sectionClass} text-black`}>
       {renderSection('Experience')}
       <div className="pl-[0.15in]">
         {workExperience.map((work, index) => (
@@ -323,38 +323,40 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
               <EditableText
                 value={work.company}
                 onChange={(value: string) => onWorkExperienceChange(index, 'company', value)}
-                className="font-bold"
+                className="font-bold text-black"
                 placeholder="Company Name"
               />
               <EditableText
                 value={work.location}
                 onChange={(value: string) => onWorkExperienceChange(index, 'location', value)}
                 placeholder="Location"
-                className="text-right"
+                className="text-right text-black"
               />
             </div>
             <div className="flex justify-between items-baseline mb-0.5">
               <EditableText
                 value={work.position}
                 onChange={(value: string) => onWorkExperienceChange(index, 'position', value)}
-                className="italic"
+                className="italic text-black"
                 placeholder="Position"
               />
-              <div className="flex gap-1 italic text-right">
+              <div className="flex gap-1 italic text-right text-black">
                 <InlineMonthPicker
                   value={work.startDate}
                   onChange={(value: string) => onWorkExperienceChange(index, 'startDate', value)}
                   placeholder="Start Date"
+                  className="text-black"
                 />
-                <span>-</span>
+                <span className="text-black">-</span>
                 <InlineMonthPicker
                   value={work.endDate}
                   onChange={(value: string) => onWorkExperienceChange(index, 'endDate', value)}
                   placeholder="End Date"
+                  className="text-black"
                 />
               </div>
             </div>
-            <ul className="list-disc pl-[calc(0.15in+0.15in)] space-y-[0.1rem] leading-[1.2]">
+            <ul className="list-disc pl-[calc(0.15in+0.15in)] space-y-[0.1rem] leading-[1.2] text-black">
               {work.details.map((detail, detailIndex) => (
                 <li key={detailIndex}>
                   <EditableText
@@ -365,6 +367,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
                       onWorkExperienceChange(index, 'details', newDetails);
                     }}
                     placeholder="Add work detail"
+                    className="text-black"
                   />
                 </li>
               ))}
@@ -386,18 +389,18 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
                 <EditableText
                   value={project.name}
                   onChange={(value: string) => onProjectChange(index, 'name', value)}
-                  className="font-bold"
+                  className="font-bold text-black"
                   placeholder="Project Name"
                 />
                 <EditableText
                   value={project.technologies}
                   onChange={(value: string) => onProjectChange(index, 'technologies', value)}
                   placeholder="Technologies"
-                  className="text-sm italic text-gray-700"
+                  className="text-sm italic text-black"
                 />
               </div>
               {project.showDate && (
-                <div className="flex gap-1 text-sm text-right">
+                <div className="flex gap-1 text-sm text-black text-right">
                   <InlineMonthPicker
                     value={project.startDate}
                     onChange={(value: string) => onProjectChange(index, 'startDate', value)}
@@ -412,7 +415,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
                 </div>
               )}
             </div>
-            <ul className="list-disc pl-[calc(0.15in+0.15in)] space-y-[0.1rem] leading-[1.2]">
+            <ul className="list-disc pl-[calc(0.15in+0.15in)] space-y-[0.1rem] leading-[1.2] text-black">
               {project.details.map((detail, detailIndex) => (
                 <li key={detailIndex}>
                   <EditableText
@@ -423,6 +426,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
                       onProjectChange(index, 'details', newDetails);
                     }}
                     placeholder="Add project detail"
+                    className="text-black"
                   />
                 </li>
               ))}
@@ -434,34 +438,34 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
   );
 
   const renderSkills = () => (
-    <section className={sectionClass}>
+    <section className={`${sectionClass} text-black`}>
       {renderSection('Skills')}
       <div className="pl-[0.15in] space-y-[0.1rem]">
         <div>
-          <span className="font-bold">Programming Languages: </span>
+          <span className="font-bold text-black">Programming Languages: </span>
           <EditableText
             value={skills.languages}
             onChange={(value: string) => onSkillsChange('languages', value)}
             placeholder="Add programming languages"
-            className="inline"
+            className="inline text-black"
           />
         </div>
         <div>
-          <span className="font-bold">Frameworks & Libraries: </span>
+          <span className="font-bold text-black">Frameworks & Libraries: </span>
           <EditableText
             value={skills.frameworks}
             onChange={(value: string) => onSkillsChange('frameworks', value)}
             placeholder="Add frameworks"
-            className="inline"
+            className="inline text-black"
           />
         </div>
         <div>
-          <span className="font-bold">Tools & Technologies: </span>
+          <span className="font-bold text-black">Tools & Technologies: </span>
           <EditableText
             value={skills.tools}
             onChange={(value: string) => onSkillsChange('tools', value)}
             placeholder="Add tools"
-            className="inline"
+            className="inline text-black"
           />
         </div>
       </div>
@@ -498,7 +502,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
   );
 
   return (
-    <div className="mx-auto bg-gray-100 min-h-screen">
+    <div className="mx-auto bg-background min-h-screen">
       {renderSettingsMenu()}
       
       <div className="flex flex-col items-center py-8 px-4">
@@ -516,8 +520,9 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
         >
           <div 
             ref={contentRef} 
-            className="font-[times] text-[11pt]"
+            className="font-[times] text-black"
             style={{ 
+              fontSize: FONT_SIZE,
               lineHeight: LINE_HEIGHT,
               height: '100%'
             }}
