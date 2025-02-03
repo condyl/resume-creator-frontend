@@ -44,6 +44,14 @@ export interface SkillsType {
   tools: string;
 }
 
+export interface ShowIconsType {
+  email: boolean;
+  github: boolean;
+  linkedin: boolean;
+  phone: boolean;
+  website: boolean;
+}
+
 export interface SavedResumeType {
   id: string;
   user_id: string;
@@ -55,11 +63,5 @@ export interface SavedResumeType {
   work_experience: WorkExperienceType[];
   projects: ProjectType[];
   skills: SkillsType;
-  show_icons: {
-    email: boolean;
-    github: boolean;
-    linkedin: boolean;
-    phone: boolean;
-    website: boolean;
-  };
+  show_icons: ShowIconsType;
 } 
