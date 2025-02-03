@@ -76,7 +76,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         className={cn(
-          'bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none px-1 w-full resize-none overflow-hidden',
+          'bg-white dark:bg-white border-b border-gray-300 dark:border-gray-300 focus:border-blue-500 dark:focus:border-blue-500 outline-none px-1 w-full resize-none overflow-hidden text-black dark:text-black',
           className
         )}
         style={{
@@ -95,8 +95,8 @@ export const EditableText: React.FC<EditableTextProps> = ({
       ref={spanRef}
       onDoubleClick={handleDoubleClick}
       className={cn(
-        'cursor-text inline-block hover:bg-gray-100/50 rounded px-1 -mx-1 min-w-[1em] min-h-[1em] whitespace-pre-wrap break-words',
-        !value && 'text-gray-400 italic',
+        'cursor-text inline-block hover:bg-gray-100 dark:hover:bg-gray-100 rounded px-1 -mx-1 min-w-[1em] min-h-[1em] whitespace-pre-wrap break-words text-black dark:text-black',
+        !value && 'text-gray-400 dark:text-gray-400 italic',
         className
       )}
       style={style}

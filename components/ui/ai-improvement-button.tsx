@@ -6,6 +6,7 @@ import { Brain, Loader2, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { BASE_URL } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
 interface AIImprovementButtonProps {
   text: string;
@@ -49,7 +50,7 @@ const AIImprovementButton: React.FC<AIImprovementButtonProps> = ({ text, onTextI
               type="button" 
               variant="outline" 
               size="icon"
-              className={className}
+              className={cn("opacity-0 group-hover/bullet:opacity-100 bg-white dark:bg-white text-gray-500 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-700 border-gray-200 dark:border-gray-200", className)}
               onClick={handleImproveText} 
               disabled={loading}
               icon={loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
@@ -57,9 +58,9 @@ const AIImprovementButton: React.FC<AIImprovementButtonProps> = ({ text, onTextI
               ariaLabel="Improve text with AI"
             />
           </PopoverTrigger>
-          <PopoverContent className="flex items-center space-x-2 p-4">
+          <PopoverContent className="flex items-center space-x-2 p-4 bg-white dark:bg-white border-gray-200 dark:border-gray-200">
             <AlertTriangle className="h-4 w-4 text-yellow-500" />
-            <p className="text-sm">{error}</p>
+            <p className="text-sm text-black dark:text-black">{error}</p>
           </PopoverContent>
         </Popover>
       ) : (
@@ -67,7 +68,7 @@ const AIImprovementButton: React.FC<AIImprovementButtonProps> = ({ text, onTextI
           type="button" 
           variant="outline" 
           size="icon"
-          className={className}
+          className={cn("opacity-0 group-hover/bullet:opacity-100 bg-white dark:bg-white text-gray-500 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-700 border-gray-200 dark:border-gray-200", className)}
           onClick={handleImproveText} 
           disabled={loading}
           icon={loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}

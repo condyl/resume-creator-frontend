@@ -90,8 +90,8 @@ const InlineMonthPicker: React.FC<{
       placeholder={placeholder}
       showIcon={false}
       className={cn(
-        "p-0 h-auto min-h-0 border-0 bg-transparent hover:bg-gray-100/50 rounded font-inherit whitespace-nowrap w-auto",
-        !value && "text-gray-400 italic",
+        "p-0 h-auto min-h-0 border-0 bg-transparent hover:bg-gray-100/50 rounded font-inherit whitespace-nowrap w-auto text-black dark:text-black",
+        !value && "text-gray-400 dark:text-gray-400 italic",
         className
       )}
     />
@@ -309,7 +309,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
         <Button
           variant="outline"
           size="sm"
-          className="w-full opacity-0 group-hover/add-hover:opacity-100 border-dashed border-gray-300 hover:border-gray-400 text-gray-500 hover:text-gray-700"
+          className="w-full opacity-0 group-hover/add-hover:opacity-100 border-dashed border-gray-300 hover:border-gray-400 bg-white dark:bg-white text-gray-500 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-700"
           onClick={onClick}
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -325,7 +325,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          className="w-full text-gray-400 hover:text-gray-700 opacity-0 group-hover:opacity-100 flex items-center justify-center"
+          className="w-full text-gray-400 hover:text-gray-700 opacity-0 group-hover:opacity-100 flex items-center justify-center bg-white dark:bg-white"
           onClick={onClick}
         >
           <Plus className="h-3 w-3 mr-1" />
@@ -333,6 +333,28 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
         </Button>
       </div>
     </li>
+  );
+
+  const renderRemoveButton = (onClick: () => void) => (
+    <Button
+      variant="outline"
+      size="sm"
+      className="absolute -left-10 top-0 h-full opacity-0 group-hover:opacity-100 border border-red-200 hover:border-red-500 hover:bg-red-50 text-red-500 hover:text-red-700 rounded-sm px-2 mr-2 bg-white dark:bg-white"
+      onClick={onClick}
+    >
+      <X className="h-4 w-4" />
+    </Button>
+  );
+
+  const renderSettingsButton = (field: keyof ShowIconsType) => (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => onToggleIcon(field)}
+      className="h-4 w-4 opacity-0 group-hover:opacity-100 bg-white dark:bg-white text-gray-500 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-700"
+    >
+      <Settings2 className="h-3 w-3" />
+    </Button>
   );
 
   const renderEducation = () => (
@@ -349,14 +371,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
               key={index} 
               className={`${itemClass} group relative`}
             >
-              <Button
-                variant="outline"
-                size="sm"
-                className="absolute -left-10 top-0 h-full opacity-0 group-hover:opacity-100 border border-red-200 hover:border-red-500 hover:bg-red-50 text-red-500 hover:text-red-700 rounded-sm px-2 mr-2"
-                onClick={() => onRemoveEducation(index)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              {renderRemoveButton(() => onRemoveEducation(index))}
               <div className="flex justify-between items-baseline mb-0">
                 <EditableText
                   value={edu.school}
@@ -438,12 +453,12 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              className="absolute -left-7 top-0 opacity-0 group-hover/bullet:opacity-100 h-6 w-6 p-0"
+              className="absolute -left-7 top-0 opacity-0 group-hover/bullet:opacity-100 h-6 w-6 p-0 bg-white hover:bg-gray-100 dark:bg-white dark:hover:bg-gray-100 z-10"
               onClick={() => onRemoveWorkDetail(index, detailIndex)}
             >
-              <X className="h-3 w-3 text-red-500" />
+              <X className="h-3 w-3 text-red-500 dark:text-red-500" />
             </Button>
-            <div className="flex-1 relative before:content-['•'] before:absolute before:-left-4 before:top-0">
+            <div className="flex-1 relative before:content-['•'] before:absolute before:-left-4 before:top-0 before:group-hover/bullet:opacity-0">
               <EditableText
                 value={detail}
                 onChange={(value: string) => {
@@ -481,12 +496,12 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              className="absolute -left-7 top-0 opacity-0 group-hover/bullet:opacity-100 h-6 w-6 p-0"
+              className="absolute -left-7 top-0 opacity-0 group-hover/bullet:opacity-100 h-6 w-6 p-0 bg-white hover:bg-gray-100 dark:bg-white dark:hover:bg-gray-100 z-10"
               onClick={() => onRemoveProjectDetail(index, detailIndex)}
             >
-              <X className="h-3 w-3 text-red-500" />
+              <X className="h-3 w-3 text-red-500 dark:text-red-500" />
             </Button>
-            <div className="flex-1 relative before:content-['•'] before:absolute before:-left-4 before:top-0">
+            <div className="flex-1 relative before:content-['•'] before:absolute before:-left-4 before:top-0 before:group-hover/bullet:opacity-0">
               <EditableText
                 value={detail}
                 onChange={(value: string) => {
@@ -522,14 +537,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
       <div className="pl-[0.15in]">
         {workExperience.map((work, index) => (
           <div key={index} className={`${itemClass} group relative`}>
-            <Button
-              variant="outline"
-              size="sm"
-              className="absolute -left-10 top-0 h-full opacity-0 group-hover:opacity-100 border border-red-200 hover:border-red-500 hover:bg-red-50 text-red-500 hover:text-red-700 rounded-sm px-2 mr-2"
-              onClick={() => onRemoveWorkExperience(index)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            {renderRemoveButton(() => onRemoveWorkExperience(index))}
             <div className="flex justify-between items-baseline mb-0">
               <EditableText
                 value={work.position}
@@ -581,14 +589,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
       <div className="pl-[0.15in]">
         {projects.map((project, index) => (
           <div key={index} className={`${itemClass} group relative`}>
-            <Button
-              variant="outline"
-              size="sm"
-              className="absolute -left-10 top-0 h-full opacity-0 group-hover:opacity-100 border border-red-200 hover:border-red-500 hover:bg-red-50 text-red-500 hover:text-red-700 rounded-sm px-2 mr-2"
-              onClick={() => onRemoveProject(index)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            {renderRemoveButton(() => onRemoveProject(index))}
             <div className="flex justify-between items-baseline mb-0.5">
               <div className="flex items-baseline gap-2">
                 <EditableText
