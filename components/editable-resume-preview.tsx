@@ -433,8 +433,8 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
   const renderWorkExperienceDetails = (work: WorkExperienceType, index: number) => (
     <ul className="list-disc pl-[calc(0.15in+0.15in)] space-y-[0.1rem] leading-[1.2] text-black pb-2">
       {work.details.map((detail, detailIndex) => (
-        <li key={detailIndex} className="group/bullet relative">
-          <div className="flex items-start gap-2">
+        <li key={detailIndex} className="group/bullet relative list-none">
+          <div className="flex items-start gap-2 relative">
             <Button
               variant="ghost"
               size="sm"
@@ -443,7 +443,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
             >
               <X className="h-3 w-3 text-red-500" />
             </Button>
-            <div className="flex-1">
+            <div className="flex-1 relative before:content-['•'] before:absolute before:-left-4 before:top-0">
               <EditableText
                 value={detail}
                 onChange={(value: string) => {
@@ -476,8 +476,8 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
   const renderProjectDetails = (project: ProjectType, index: number) => (
     <ul className="list-disc pl-[calc(0.15in+0.15in)] space-y-[0.1rem] leading-[1.2] text-black pb-2">
       {project.details.map((detail, detailIndex) => (
-        <li key={detailIndex} className="group/bullet relative">
-          <div className="flex items-start gap-2">
+        <li key={detailIndex} className="group/bullet relative list-none">
+          <div className="flex items-start gap-2 relative">
             <Button
               variant="ghost"
               size="sm"
@@ -486,7 +486,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
             >
               <X className="h-3 w-3 text-red-500" />
             </Button>
-            <div className="flex-1">
+            <div className="flex-1 relative before:content-['•'] before:absolute before:-left-4 before:top-0">
               <EditableText
                 value={detail}
                 onChange={(value: string) => {
