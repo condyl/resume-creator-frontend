@@ -18,6 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import AIImprovementButton from './ui/ai-improvement-button';
 
 // Constants for page dimensions (in inches, converted to pixels)
 const INCH_TO_PX = 96; // Standard 96 DPI
@@ -433,24 +434,39 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
     <ul className="list-disc pl-[calc(0.15in+0.15in)] space-y-[0.1rem] leading-[1.2] text-black pb-2">
       {work.details.map((detail, detailIndex) => (
         <li key={detailIndex} className="group/bullet relative">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="absolute -left-7 top-0 opacity-0 group-hover/bullet:opacity-100 h-6 w-6 p-0"
-            onClick={() => onRemoveWorkDetail(index, detailIndex)}
-          >
-            <X className="h-3 w-3 text-red-500" />
-          </Button>
-          <EditableText
-            value={detail}
-            onChange={(value: string) => {
-              const newDetails = [...work.details];
-              newDetails[detailIndex] = value;
-              onWorkExperienceChange(index, 'details', newDetails);
-            }}
-            placeholder="Add work detail"
-            className="text-black"
-          />
+          <div className="flex items-start gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute -left-7 top-0 opacity-0 group-hover/bullet:opacity-100 h-6 w-6 p-0"
+              onClick={() => onRemoveWorkDetail(index, detailIndex)}
+            >
+              <X className="h-3 w-3 text-red-500" />
+            </Button>
+            <div className="flex-1">
+              <EditableText
+                value={detail}
+                onChange={(value: string) => {
+                  const newDetails = [...work.details];
+                  newDetails[detailIndex] = value;
+                  onWorkExperienceChange(index, 'details', newDetails);
+                }}
+                placeholder="Add work detail"
+                className="text-black"
+              />
+            </div>
+            <div className="opacity-0 group-hover/bullet:opacity-100 transition-opacity">
+              <AIImprovementButton
+                text={detail}
+                onTextImproved={(improvedText) => {
+                  const newDetails = [...work.details];
+                  newDetails[detailIndex] = improvedText;
+                  onWorkExperienceChange(index, 'details', newDetails);
+                }}
+                className="h-6 w-6"
+              />
+            </div>
+          </div>
         </li>
       ))}
       {renderAddDetailButton(() => onAddWorkDetail(index))}
@@ -461,24 +477,39 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
     <ul className="list-disc pl-[calc(0.15in+0.15in)] space-y-[0.1rem] leading-[1.2] text-black pb-2">
       {project.details.map((detail, detailIndex) => (
         <li key={detailIndex} className="group/bullet relative">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="absolute -left-7 top-0 opacity-0 group-hover/bullet:opacity-100 h-6 w-6 p-0"
-            onClick={() => onRemoveProjectDetail(index, detailIndex)}
-          >
-            <X className="h-3 w-3 text-red-500" />
-          </Button>
-          <EditableText
-            value={detail}
-            onChange={(value: string) => {
-              const newDetails = [...project.details];
-              newDetails[detailIndex] = value;
-              onProjectChange(index, 'details', newDetails);
-            }}
-            placeholder="Add project detail"
-            className="text-black"
-          />
+          <div className="flex items-start gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute -left-7 top-0 opacity-0 group-hover/bullet:opacity-100 h-6 w-6 p-0"
+              onClick={() => onRemoveProjectDetail(index, detailIndex)}
+            >
+              <X className="h-3 w-3 text-red-500" />
+            </Button>
+            <div className="flex-1">
+              <EditableText
+                value={detail}
+                onChange={(value: string) => {
+                  const newDetails = [...project.details];
+                  newDetails[detailIndex] = value;
+                  onProjectChange(index, 'details', newDetails);
+                }}
+                placeholder="Add project detail"
+                className="text-black"
+              />
+            </div>
+            <div className="opacity-0 group-hover/bullet:opacity-100 transition-opacity">
+              <AIImprovementButton
+                text={detail}
+                onTextImproved={(improvedText) => {
+                  const newDetails = [...project.details];
+                  newDetails[detailIndex] = improvedText;
+                  onProjectChange(index, 'details', newDetails);
+                }}
+                className="h-6 w-6"
+              />
+            </div>
+          </div>
         </li>
       ))}
       {renderAddDetailButton(() => onAddProjectDetail(index))}
