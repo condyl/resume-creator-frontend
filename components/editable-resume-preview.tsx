@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { PersonalInfoType, EducationType, WorkExperienceType, ProjectType, SkillsType, ShowIconsType } from '@/lib/types';
 import { EditableText } from './ui/editable-text';
 import { Button } from './ui/button';
-import { Settings2, Plus, EyeOff, X } from 'lucide-react';
+import { Settings2, Plus, EyeOff, X, AlertCircle } from 'lucide-react';
 import { MonthPicker } from './ui/month-picker';
 import { format, parseISO } from 'date-fns';
 import {
@@ -129,6 +129,18 @@ interface SectionMeasurements {
   projects: number;
   skills: number;
 }
+
+const PreviewDisclaimer: React.FC = () => (
+  <div className="flex flex-col gap-2 w-64 p-4 bg-muted/50 rounded-lg mr-6 h-fit sticky top-4">
+    <div className="flex items-center gap-2 text-muted-foreground">
+      <AlertCircle className="h-5 w-5" />
+      <h3 className="font-semibold">Preview Notice</h3>
+    </div>
+    <p className="text-sm text-muted-foreground">
+      This preview is a close representation of your resume, but the final PDF may have slight variations in spacing, alignment, and formatting.
+    </p>
+  </div>
+);
 
 export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
   personalInfo,
