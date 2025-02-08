@@ -245,7 +245,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
           className="text-[28pt] font-bold tracking-[0.05em] mb-0.5 capitalize text-black"
           placeholder="Your Name"
         />
-        <div className="flex justify-center items-center gap-2 text-sm text-black">
+        <div className="flex justify-center items-center gap-2 text-sm text-black whitespace-nowrap min-w-0 flex-wrap">
           {renderHeaderItem('email', 
             <EditableText
               value={personalInfo.email}
@@ -266,7 +266,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
           )}
           
           {renderHeaderItem('github',
-            <span className="text-black">
+            <span className="text-black inline-flex whitespace-nowrap">
               github.com/
               <EditableText
                 value={personalInfo.github}
@@ -279,7 +279,7 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
           )}
           
           {renderHeaderItem('linkedin',
-            <span className="text-black">
+            <span className="text-black inline-flex whitespace-nowrap">
               linkedin.com/in/
               <EditableText
                 value={personalInfo.linkedin}
@@ -292,12 +292,14 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
           )}
           
           {renderHeaderItem('website',
-            <EditableText
-              value={personalInfo.website}
-              onChange={(value: string) => onPersonalInfoChange('website', value)}
-              placeholder="Website"
-              className="hover:underline text-black"
-            />
+            <span className="inline-flex whitespace-nowrap">
+              <EditableText
+                value={personalInfo.website}
+                onChange={(value: string) => onPersonalInfoChange('website', value)}
+                placeholder="Website"
+                className="hover:underline text-black"
+              />
+            </span>
           )}
         </div>
       </div>
