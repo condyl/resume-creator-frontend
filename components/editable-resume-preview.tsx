@@ -393,12 +393,21 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
                   className="font-bold text-[12pt] text-black"
                   placeholder="School Name"
                 />
-                <EditableText
-                  value={edu.location}
-                  onChange={(value: string) => onEducationChange(index, 'location', value)}
-                  placeholder="Location"
-                  className="text-right italic text-black"
-                />
+                <div className="flex gap-1 italic text-right text-black">
+                  <InlineMonthPicker
+                    value={edu.startDate}
+                    onChange={(value: string) => onEducationChange(index, 'startDate', value)}
+                    placeholder="Start Date"
+                    className="text-black"
+                  />
+                  <span className="text-black">-</span>
+                  <InlineMonthPicker
+                    value={edu.endDate}
+                    onChange={(value: string) => onEducationChange(index, 'endDate', value)}
+                    placeholder="End Date"
+                    className="text-black"
+                  />
+                </div>
               </div>
               <div className="flex justify-between items-baseline mb-0">
                 <EditableText
@@ -407,19 +416,12 @@ export const EditableResumePreview: React.FC<EditableResumePreviewProps> = ({
                   className="italic text-black"
                   placeholder="Degree"
                 />
-                <div className="flex gap-1 italic text-right text-black">
-                  <InlineMonthPicker
-                    value={edu.startDate}
-                    onChange={(value: string) => onEducationChange(index, 'startDate', value)}
-                    placeholder="Start Date"
-                  />
-                  <span>-</span>
-                  <InlineMonthPicker
-                    value={edu.endDate}
-                    onChange={(value: string) => onEducationChange(index, 'endDate', value)}
-                    placeholder="End Date"
-                  />
-                </div>
+                <EditableText
+                  value={edu.location}
+                  onChange={(value: string) => onEducationChange(index, 'location', value)}
+                  placeholder="Location"
+                  className="text-right italic text-black"
+                />
               </div>
               <Popover>
                 <PopoverTrigger asChild>
